@@ -8,3 +8,6 @@ router.put('/:id', controller.UpdateVoucher)
 router.delete('/:id', controller.DeleteVoucher)
 
 
+module.exports = router
+
+

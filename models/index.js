@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 const userSchema = require('./User')
-const loadSchema = require('./LoadSchema')
-const voucherSchema = require('./VoucherSchema')
-const monthlyPaymentSchema = require('./MonthlyPaymentSchema')
+const loadSchema = require('./Load')
+const voucherSchema = require('./Voucher')
+const monthlyPaymentSchema = require('./MonthlyPayment')
 
 const User = mongoose.model('User', userSchema)
 const Load = mongoose.model('Load', loadSchema)

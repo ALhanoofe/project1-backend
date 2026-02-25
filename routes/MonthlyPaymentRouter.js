@@ -8,3 +8,5 @@ router.put('/:id', controller.UpdateMonthlyPayment)
 router.delete('/:id', controller.DeleteMonthlyPayment)
 
 
+module.exports = router
+
