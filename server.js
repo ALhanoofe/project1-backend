@@ -4,6 +4,10 @@ const logger = require('morgan')
 const cors = require('cors')
 
 
+const LoadRouter = require('./routes/LoadRouter')
+const MonthlyPaymentRouter = require('./routes/MonthlyPaymentRouter')
+const VoucherRouter = require('./routes/VoucherRouter')
+
 
 
 
@@ -23,8 +27,9 @@ app.use(express.urlencoded({ extended: false }))
 
 
 
-
-
+app.use('/loads', LoadRouter)
+app.use('/monthlyPayments', MonthlyPaymentRouter)
+app.use('/vouchers', VoucherRouter)
 
 
 
