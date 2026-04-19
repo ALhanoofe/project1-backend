@@ -26,6 +26,15 @@ const MonthlyPaymentSchema = new Schema({
     type: String,
   },
 
+  paymentYear: {
+    type: Number,
+    required: true
+  },
+  paymentMonth: {
+    type: Number,
+    required: true
+  },
+
   receipt: {
     type: String
   },

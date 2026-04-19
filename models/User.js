@@ -21,16 +21,16 @@ const UserSchema = new Schema({
 
   password: { type: String, required: true },
 
-// هل نحط امثل و لا 
+  // هل نحط امثل و لا 
   projectType: { type: String, required: true },
 
   exName: { type: String, required: true },
   exCpr: { type: Number, required: true },
   exRelation: { type: String, required: true },
-  exName: { type: Number, required: true },
+  exName: { type: String, required: true },
   exOfficeNo: { type: Number, required: true },
   exHomeNo: { type: Number, required: true },
-  exFoxNo: { type: Number, required: true },
+  exFoxNo: { type: Number },
 
 
 
