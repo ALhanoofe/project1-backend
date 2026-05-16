@@ -2,20 +2,26 @@ const {Voucher} = require('../models')
 
 const GetAllVouchers = async (req, res) => {
   try {
+
     const vouchers = await Voucher.find()
+      .populate("userId")
+
     res.status(200).send(vouchers)
-  }
-  catch (error) {
+
+  } catch (error) {
     throw error
   }
 }
 
 const GetVoucherById = async (req, res) => {
   try {
+
     const voucher = await Voucher.findById(req.params.id)
+      .populate("userId")
+
     res.status(200).send(voucher)
-  }
-  catch (error) {
+
+  } catch (error) {
     throw error
   }
 }

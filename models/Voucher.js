@@ -1,7 +1,7 @@
 const { Schema } = require('mongoose');
 
 const VoucherSchema = new Schema({
-    userId: {
+  userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true
@@ -16,12 +16,12 @@ const VoucherSchema = new Schema({
   },
   paymentType: {
     type: String,
-    enum: ["monthlyPayment", "loanPayment"],
-    required: true  
+    enum: ["دفع شهري", "دفع قسط القرض "],
+    required: true
   },
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "late"],
+    enum: ["جديد", "قيد التأكيد", "عملية الدفع مرفوضة", "تمت العملية بنجاح"],
   },
   voucherReceipt: {
     type: String
@@ -30,7 +30,7 @@ const VoucherSchema = new Schema({
     type: String
   }
 
-  
+
 
 
 })
