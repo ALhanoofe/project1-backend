@@ -3,10 +3,11 @@ const middleware = require('../models/middleware')
 
 const Register = async (req, res) => {
   try {
-    const {
-      memberName,
+
+    const { memberName,
       memberEmail,
       CPR,
+      password,
       bankName,
       ibanNo,
       phoneNumber,
@@ -18,21 +19,23 @@ const Register = async (req, res) => {
       blockNo,
       rodeNo,
       departmentNo,
+      city,
       mailboxNo,
-      password,
       projectType,
       exName,
+      exPhoneNumber,
       exCpr,
       exRelation,
       exOfficeNo,
       exHomeNo,
-      exFoxNo
-    } = req.body;
+      exFoxNo } = req.body
 
-    let passwordDigest = await middleware.hashPassword(password);
-    let existingUser = await User.exists({ memberEmail });
+    let passwordDigest = await middleware.hashPassword(password)
+
+    let existingUser = await User.exists({ memberEmail })
+
     if (existingUser) {
-      return res.status(400).send('A user with that email has already been registered!');
+      return res.status(400).send('A user with that email has already been registered!')
     } else {
       const user = await User.create({
         memberName,
@@ -49,90 +52,108 @@ const Register = async (req, res) => {
         blockNo,
         rodeNo,
         departmentNo,
+        city,
         mailboxNo,
-        password: passwordDigest,
         projectType,
         exName,
         exCpr,
         exRelation,
         exOfficeNo,
+        exPhoneNumber,
         exHomeNo,
-        exFoxNo
-      });
-      res.status(200).send(user);
+        exFoxNo,
+        password: passwordDigest,
+        status: "pending"
+      })
+      res.status(200).send(user)
     }
   } catch (error) {
-    throw error;
+    throw error
   }
 }
+
 const Login = async (req, res) => {
   try {
-    const { CPR, password } = req.body;
-    const user = await User.findOne({ CPR });
+    let { CPR, password } = req.body
+
+    CPR = Number(CPR) 
+
+    const user = await User.findOne({ CPR })
 
     if (!user) {
-      return res.status(401).send({ status: 'Error', msg: 'User not found' });
+      return res.status(404).send({
+        status: "Error",
+        msg: "User not found"
+      })
     }
 
-    let matched = await middleware.comparePassword(password, user.password);
+    let matched = await middleware.comparePassword(
+      password,
+      user.password
+    )
 
-    if (matched) {
-      let payload = {
-        id: user._id,
-        name: user.memberName,
-        CPR: user.CPR,
-        email: user.memberEmail,
-        PhoneNumber: user.phoneNumber,
-        userType: user.userType,
-        username: user.username
-      };
-
-      let token = middleware.createToken(payload);
-
-      return res.status(200).send({ user: payload, token });
-    } else {
-      res.status(401).send({ status: 'Error', msg: 'Invalid credentials' });
+    if (!matched) {
+      return res.status(401).send({
+        status: "Error",
+        msg: "Wrong password"
+      })
     }
+
+    let payload = {
+      id: user._id,
+      name: user.memberName,
+      cpr: user.CPR,
+      email: user.memberEmail,
+      phoneNumber: user.phoneNumber,
+      status: user.status
+    }
+
+    let token = middleware.createToken(payload)
+
+    return res.status(200).send({ user: payload, token })
+
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ status: 'Error', msg: 'An error occurred during login' });
+    console.log(error)
+    return res.status(500).send({
+      status: "Error",
+      msg: "Server error"
+    })
   }
 }
 const UpdatePassword = async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).send({ status: 'Error', msg: 'User not found' });
-    }
-    let matched = await middleware.comparePassword(oldPassword, user.password);
+    const { oldPassword, newPassword } = req.body
+    let user = await User.findById(req.params.id)
+    let matched = await middleware.comparePassword(
+      oldPassword,
+      user.password)
     if (matched) {
-      let passwordDigest = await middleware.hashPassword(newPassword);
-      user.password = passwordDigest;
-      await user.save();
-
+      let passwordDigest = await middleware.hashPassword(newPassword)
+      user = await User.findByIdAndUpdate(req.params.id, {
+        passwordDigest
+      })
       let payload = {
         id: user._id,
         name: user.memberName,
+        cpr: user.CPR,
         email: user.memberEmail,
         phoneNumber: user.phoneNumber
-      };
-      return res.status(200).send({ status: 'Password Updated!', user: payload });
-    } else {
-      res.status(401).send({ status: 'Error', msg: 'Old Password did not match!' });
+      }
+      return res.status(200).send({ status: 'Password Updated!', user: payload })
     }
+    res.status(401).send({ status: 'Error', msg: 'Old Password did not match!' })
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.status(401).send({
       status: 'Error',
       msg: 'An error has occurred updating password!'
-    });
+    })
   }
 }
 
 const CheckSession = async (req, res) => {
-  const { payload } = res.locals;
-  res.status(200).send(payload);
+  const { payload } = res.locals
+  res.status(200).send(payload)
 }
 
 module.exports = {
@@ -140,4 +161,4 @@ module.exports = {
   Login,
   UpdatePassword,
   CheckSession
-};
+}

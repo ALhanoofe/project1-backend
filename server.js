@@ -9,16 +9,11 @@ const MonthlyPaymentRouter = require('./routes/MonthlyPaymentRouter')
 const VoucherRouter = require('./routes/VoucherRouter')
 
 
-
-
-
-
 const db = require('./db')
 
 const PORT = process.env.PORT || 3000
 
 const app = express()
-
 
 
 app.use(cors())
