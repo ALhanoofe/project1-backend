@@ -5,54 +5,95 @@ require('dotenv').config()
 const SALT_ROUNDS = parseInt(process.env.SALT_ROUNDS)
 const APP_SECRET = process.env.APP_SECRET
 
+// =======================
+// HASH PASSWORD
+// =======================
 const hashPassword = async (password) => {
-  let hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
-  return hashedPassword
+  return await bcrypt.hash(password, SALT_ROUNDS)
 }
 
+// =======================
+// COMPARE PASSWORD
+// =======================
 const comparePassword = async (password, storedPassword) => {
-
-  let passwordMatch = await bcrypt.compare(password, storedPassword)
-
-  return passwordMatch
+  return await bcrypt.compare(password, storedPassword)
 }
 
+// =======================
+// CREATE TOKEN
+// =======================
 const createToken = (payload) => {
-  let token = jwt.sign(payload, APP_SECRET)
-  return token
+  return jwt.sign(payload, APP_SECRET)
 }
 
+// =======================
+// STRIP TOKEN (FIXED)
+// =======================
 const stripToken = (req, res, next) => {
-  try {
-    const token = req.headers['authorization'].split(' ')[1]
+  const authHeader = req.headers.authorization
 
-    if (token) {
-      res.locals.token = token
-      return next()
-    }
-    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
-  } catch (error) {
-    console.log(error)
-    res.status(401).send({ status: 'Error', msg: 'Strip Token Error!' })
+  // 1. تحقق من وجود الهيدر
+  if (!authHeader) {
+    return res.status(401).send({
+      status: 'Error',
+      msg: 'No Authorization header'
+    })
   }
+
+  // 2. تحقق من الفورمات (Bearer token)
+  const parts = authHeader.split(' ')
+
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return res.status(401).send({
+      status: 'Error',
+      msg: 'Invalid token format'
+    })
+  }
+
+  const token = parts[1]
+
+  // 3. تحقق من وجود التوكن
+  if (!token) {
+    return res.status(401).send({
+      status: 'Error',
+      msg: 'Token missing'
+    })
+  }
+
+  // 4. خزنه
+  res.locals.token = token
+  next()
 }
 
+// =======================
+// VERIFY TOKEN
+// =======================
 const verifyToken = (req, res, next) => {
-  const { token } = res.locals
-  try {
-    let payload = jwt.verify(token, APP_SECRET)
-    if (payload) {
-      res.locals.payload = payload 
-      return next()
-    }
+  const token = res.locals.token
 
-    res.status(401).send({ status: 'Error', msg: 'Unauthorized' })
+  if (!token) {
+    return res.status(401).send({
+      status: 'Error',
+      msg: 'No token to verify'
+    })
+  }
+
+  try {
+    const payload = jwt.verify(token, APP_SECRET)
+    res.locals.payload = payload
+    next()
   } catch (error) {
     console.log(error)
-    res.status(401).send({ status: 'Error', msg: 'Verify Token Error!' })
+    return res.status(401).send({
+      status: 'Error',
+      msg: 'Invalid token'
+    })
   }
 }
 
+// =======================
+// EXPORT
+// =======================
 module.exports = {
   hashPassword,
   comparePassword,

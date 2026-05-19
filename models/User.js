@@ -21,16 +21,16 @@ const UserSchema = new Schema({
   city: { type: String, required: true },
   mailboxNo: { type: Number, required: true },
 
-  userbalance: {    
+  userbalance: {
     type: String,
     enum: ["option1", "option2", "option3"],
-    default: "pending", },
+  },
 
 
 
 
   // هل نحط امثل و لا 
-  projectType: { type: String, required: true },
+  projectType: { type: String },
 
   exName: { type: String, required: true },
   exCpr: { type: Number, required: true },
