@@ -2,7 +2,7 @@ const { MonthlyPayment } = require('../models')
 
 const GetAllMonthlyPayments = async (req, res) => {
   try {
-    const monthlyPayments = await MonthlyPayment.find()
+    const monthlyPayments = await MonthlyPayment.find().populate("userId")
     res.status(200).send(monthlyPayments)
   }
   catch (error) {
@@ -13,7 +13,8 @@ const GetAllMonthlyPayments = async (req, res) => {
 
 const GetMonthlyPaymentById = async (req, res) => {
   try {
-    const monthlyPayment = await MonthlyPayment.findById(req.params.id)
+    const monthlyPayment = await MonthlyPayment.findById(req.params.id).populate("userId")
+
     res.status(200).send(monthlyPayment)
   } catch (error) {
     throw error
@@ -35,7 +36,7 @@ const CreateMonthlyPayment = async (req, res) => {
 const UpdateMonthlyPayment = async (req, res) => {
   try {
     const monthlyPayment = await MonthlyPayment.findByIdAndUpdate
-      (req.params.id, req.body, { new: true })      
+      (req.params.id, req.body, { new: true })
     res.status(200).send(monthlyPayment)
   }
   catch (error) {

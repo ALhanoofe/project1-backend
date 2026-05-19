@@ -21,6 +21,11 @@ const UserSchema = new Schema({
   city: { type: String, required: true },
   mailboxNo: { type: Number, required: true },
 
+  userbalance: {    
+    type: String,
+    enum: ["option1", "option2", "option3"],
+    default: "pending", },
+
 
 
 

@@ -24,7 +24,7 @@ const GetVoucherById = async (req, res) => {
   } catch (error) {
     throw error
   }
-}
+} 
 
 const CreateVoucher = async (req, res) => {
   try {
