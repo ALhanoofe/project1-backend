@@ -46,6 +46,16 @@ const UserSchema = new Schema({
     enum: ["pending", "approved"],
     default: "pending",
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+  memberStatus: {
+    type: String,
+    enum: ["مشترك", "منسحبة"],
+    default: "مشترك",
+  },
   password: { type: String },
 
 
