@@ -76,7 +76,7 @@ const Login = async (req, res) => {
   try {
     let { CPR, password } = req.body
 
-    CPR = Number(CPR) 
+    CPR = Number(CPR)
 
     const user = await User.findOne({ CPR })
 
@@ -110,7 +110,7 @@ const Login = async (req, res) => {
 
     let token = middleware.createToken(payload)
 
-    return res.status(200).send({ user: payload, token })
+    return res.status(200).send({ user, token })
 
   } catch (error) {
     console.log(error)
@@ -130,7 +130,7 @@ const UpdatePassword = async (req, res) => {
     if (matched) {
       let passwordDigest = await middleware.hashPassword(newPassword)
       user = await User.findByIdAndUpdate(req.params.id, {
-        passwordDigest
+        password: passwordDigest
       })
       let payload = {
         id: user._id,
@@ -152,13 +152,44 @@ const UpdatePassword = async (req, res) => {
 }
 
 const CheckSession = async (req, res) => {
-  const { payload } = res.locals
-  res.status(200).send(payload)
-}
+  try {
+    const user = await User.findById(res.locals.payload.id);
 
+    return res.status(200).send(user);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      msg: "Session error"
+    });
+  }
+};
+
+const UpdateUser = async (req, res) => {
+
+  try {
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    )
+
+    res.status(200).send(updatedUser)
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).send({
+      msg: "Error updating user"
+    })
+
+  }
+}
 module.exports = {
   Register,
   Login,
   UpdatePassword,
-  CheckSession
+  CheckSession,
+  UpdateUser
 }
