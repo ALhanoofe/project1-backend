@@ -1,7 +1,7 @@
 const router = require('express').Router()
-const controller = require('../controllers/SettlementController')
+const controller = require('../controllers/SadaqaController')
 
-router.get('/', controller.GetAllSettlements)
+router.get('/', controller.GetAllSadaqa)
 
 
 module.exports = router

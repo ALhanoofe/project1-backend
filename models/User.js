@@ -62,6 +62,7 @@ const UserSchema = new Schema({
     default: "مشترك",
   },
   password: { type: String },
+  settlementreason: { type: String },
 
 
 

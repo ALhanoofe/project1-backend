@@ -10,8 +10,38 @@ const GetAllUsers = async (req, res) => {
 }
 
 
+const GetUserById = async (req, res) => {
+  try {
+    const user = await User.findOne({ CPR: req.params.id })
+    res.status(200).send(user)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+
+const UpdateUser = async (req, res) => {
+  try {
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    )
+
+    res.send(updatedUser)
+
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+
+
+
 module.exports = {
-  GetAllUsers
+  GetAllUsers,
+  GetUserById,
+  UpdateUser
+  
 }
 
 

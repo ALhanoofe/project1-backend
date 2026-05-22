@@ -13,7 +13,7 @@ const GetAllMonthlyPayments = async (req, res) => {
 
 const GetMonthlyPaymentById = async (req, res) => {
   try {
-    const monthlyPayment = await MonthlyPayment.findById(req.params.id).populate("userId")
+    const monthlyPayment = await MonthlyPayment.findOne({ userId: req.params.id })
 
     res.status(200).send(monthlyPayment)
   } catch (error) {

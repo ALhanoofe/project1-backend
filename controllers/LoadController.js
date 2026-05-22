@@ -12,7 +12,7 @@ const GetAllLoads = async (req, res) => {
 
 const GetLoadById = async (req, res) => {
   try {
-    const loads = await Load.findById(req.params.id)
+    const loads = await Load.findOne({ userId: req.params.id })
     res.status(200).send(loads)
   } catch (error) {
     throw error

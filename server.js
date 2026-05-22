@@ -9,7 +9,6 @@ const MonthlyPaymentRouter = require('./routes/MonthlyPaymentRouter')
 const VoucherRouter = require('./routes/VoucherRouter')
 const UserRouter = require('./routes/UserRouter')
 const SadaqaRouter = require('./routes/SadaqaRouter')
-const SettlementRouter = require('./routes/SettlementRouter')
 
 
 const db = require('./db')
@@ -32,7 +31,6 @@ app.use('/monthlyPayments', MonthlyPaymentRouter)
 app.use('/vouchers', VoucherRouter)
 app.use('/users', UserRouter)
 app.use('/sadaqa', SadaqaRouter)
-app.use('/settlement', SettlementRouter)
 
 
 
