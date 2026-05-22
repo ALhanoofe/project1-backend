@@ -2,8 +2,13 @@ const { Schema } = require('mongoose');
 
 const UserSchema = new Schema({
   memberName: { type: String },
-  memberEmail: { type: String, unique: true },
-  CPR: { type: Number, unique: true, require: true },
+  memberEmail: {
+    type: String,
+    unique: true,
+    default: null
+
+  },
+  CPR: { type: Number, unique: true, required: true },
   bankName: { type: String },
   ibanNo: { type: String },
 

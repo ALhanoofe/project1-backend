@@ -7,6 +7,7 @@ const AuthRouter = require('./routes/AuthRouter')
 const LoadRouter = require('./routes/LoadRouter')
 const MonthlyPaymentRouter = require('./routes/MonthlyPaymentRouter')
 const VoucherRouter = require('./routes/VoucherRouter')
+const UserRouter = require('./routes/UserRouter')
 
 
 const db = require('./db')
@@ -27,6 +28,7 @@ app.use('/auth', AuthRouter)
 app.use('/loads', LoadRouter)
 app.use('/monthlyPayments', MonthlyPaymentRouter)
 app.use('/vouchers', VoucherRouter)
+app.use('/users', UserRouter)
 
 
 

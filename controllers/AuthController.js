@@ -28,7 +28,11 @@ const Register = async (req, res) => {
       exRelation,
       exOfficeNo,
       exHomeNo,
-      exFoxNo } = req.body
+      exFoxNo,
+      status,
+      role,
+      memberStatus
+    } = req.body
 
     let passwordDigest = await middleware.hashPassword(password)
 
@@ -63,7 +67,10 @@ const Register = async (req, res) => {
         exHomeNo,
         exFoxNo,
         password: passwordDigest,
-        status: "pending"
+        status: "pending",
+        role: "user",
+        memberStatus: "مشترك"
+
       })
       res.status(200).send(user)
     }
