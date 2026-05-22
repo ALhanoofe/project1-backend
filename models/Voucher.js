@@ -16,7 +16,7 @@ const VoucherSchema = new Schema({
   },
   paymentType: {
     type: String,
-    enum: ["دفع شهري", "دفع قسط القرض "],
+    enum: ["دفع شهري", "دفع قسط القرض"],
     required: true
   },
   paymentStatus: {
