@@ -1,15 +1,18 @@
 const { Schema } = require('mongoose');
 
-const LoadSchema = new Schema(
+const LoanSchema = new Schema(
   {
 
     loanAmountNumber: { type: Number, required: true },
     loanAmountString: { type: String, required: true },
-
+    remainingAmount: { type: Number },
     loanReason: { type: String, required: true },
     importantLoan: { type: String, required: true },
     rejectionReason: { type: String },
-    loanStatus: { type: String, required: true },
+    loanStatus: {
+      type: String, enum: ["بأنتظار", "مقبول", "مرفوض"],
+      default: "بأنتظار"
+    },
     amountMonthlyPayment: { type: Number, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     receipt: { type: String },
@@ -29,4 +32,4 @@ const LoadSchema = new Schema(
 
 
 )
-module.exports = LoadSchema
+module.exports = LoanSchema
