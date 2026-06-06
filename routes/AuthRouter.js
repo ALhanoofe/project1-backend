@@ -8,11 +8,14 @@ router.put('/update/:id', middleware.stripToken, middleware.verifyToken,
   controller.UpdatePassword)
 
 router.get(
-  '/session', middleware.stripToken, middleware.verifyToken,
+  "/session",
+  middleware.stripToken,
+  middleware.verifyToken,
   controller.CheckSession
-)
+);
+
 router.put(
-  '/update-user/:id', middleware.stripToken, middleware.verifyToken,
+  '/update-user/:id',
   controller.UpdateUser
 )
 

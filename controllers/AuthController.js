@@ -162,12 +162,14 @@ const CheckSession = async (req, res) => {
   try {
     const user = await User.findById(res.locals.payload.id);
 
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+
     return res.status(200).send(user);
   } catch (error) {
     console.log(error);
-    return res.status(500).send({
-      msg: "Session error"
-    });
+    return res.status(500).send({ msg: "Session error" });
   }
 };
 
