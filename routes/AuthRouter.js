@@ -19,4 +19,9 @@ router.put(
   controller.UpdateUser
 )
 
+router.get(
+  '/user/:id',
+  controller.GetUserById
+)
+
 module.exports = router

@@ -157,6 +157,26 @@ const UpdatePassword = async (req, res) => {
     })
   }
 }
+const GetUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+
+    if (!user) {
+      return res.status(404).send({
+        msg: "User not found"
+      })
+    }
+
+    res.status(200).send(user)
+
+  } catch (error) {
+    console.log(error)
+
+    res.status(500).send({
+      msg: "Error getting user"
+    })
+  }
+}
 
 const CheckSession = async (req, res) => {
   try {
@@ -200,5 +220,6 @@ module.exports = {
   Login,
   UpdatePassword,
   CheckSession,
-  UpdateUser
+  UpdateUser,
+  GetUserById
 }
