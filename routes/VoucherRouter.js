@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const controller = require('../controllers/VoucherController')
 
-router.get('/', controller.GetAllVouchers)
+router.get('/', controller.GetVouchers)
 router.get('/:id', controller.GetVoucherById)
 router.post('/', controller.CreateVoucher)
 router.put('/:id', controller.UpdateVoucher)

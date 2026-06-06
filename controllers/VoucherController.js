@@ -1,6 +1,6 @@
 const {Voucher} = require('../models')
 
-const GetAllVouchers = async (req, res) => {
+const GetVouchers = async (req, res) => {
   try {
 
     const vouchers = await Voucher.find()
@@ -59,7 +59,7 @@ const DeleteVoucher = async (req, res) => {
 }
 
 module.exports = {
-  GetAllVouchers,
+  GetVouchers,
   GetVoucherById,
   CreateVoucher,
   UpdateVoucher,
