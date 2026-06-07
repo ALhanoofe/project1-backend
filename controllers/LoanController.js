@@ -2,7 +2,7 @@ const { Loan } = require('../models')
 
 const GetAllLoans = async (req, res) => {
   try {
-    const loans = await Loan.find()
+    const loans = await Loan.find().populate('userId')
     res.status(200).send(loans)
   }
   catch (error) {
