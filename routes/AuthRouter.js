@@ -23,5 +23,7 @@ router.get(
   '/user/:id',
   controller.GetUserById
 )
+router.put('/update-password/:id', controller.UpdatePassword)
+
 
 module.exports = router

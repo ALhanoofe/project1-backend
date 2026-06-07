@@ -130,30 +130,34 @@ const Login = async (req, res) => {
 const UpdatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body
+
     let user = await User.findById(req.params.id)
-    let matched = await middleware.comparePassword(
-      oldPassword,
-      user.password)
-    if (matched) {
-      let passwordDigest = await middleware.hashPassword(newPassword)
-      user = await User.findByIdAndUpdate(req.params.id, {
-        password: passwordDigest
-      })
-      let payload = {
-        id: user._id,
-        name: user.memberName,
-        cpr: user.CPR,
-        email: user.memberEmail,
-        phoneNumber: user.phoneNumber
-      }
-      return res.status(200).send({ status: 'Password Updated!', user: payload })
+
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" })
     }
-    res.status(401).send({ status: 'Error', msg: 'Old Password did not match!' })
+
+    const matched = await middleware.comparePassword(
+      oldPassword,
+      user.password
+    )
+
+    if (!matched) {
+      return res.status(401).send({ msg: "Wrong password" })
+    }
+
+    user.password = await middleware.hashPassword(newPassword)
+
+    await user.save()
+
+    return res.status(200).send({
+      status: "Password Updated Successfully"
+    })
+
   } catch (error) {
     console.log(error)
-    res.status(401).send({
-      status: 'Error',
-      msg: 'An error has occurred updating password!'
+    return res.status(500).send({
+      msg: "Update password failed"
     })
   }
 }
@@ -194,25 +198,26 @@ const CheckSession = async (req, res) => {
 };
 
 const UpdateUser = async (req, res) => {
-
   try {
+    const user = await User.findById(req.params.id)
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    )
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" })
+    }
 
-    res.status(200).send(updatedUser)
-
-  } catch (error) {
-
-    console.log(error)
-
-    res.status(500).send({
-      msg: "Error updating user"
+    Object.keys(req.body).forEach((key) => {
+      if (key !== "oldPassword" && key !== "newPassword") {
+        user[key] = req.body[key]
+      }
     })
 
+    await user.save()
+
+    return res.status(200).send(user)
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send({ msg: "Error updating user" })
   }
 }
 module.exports = {
