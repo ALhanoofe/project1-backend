@@ -176,10 +176,8 @@ const UpdateUser = async (req, res) => {
 
     const { newPassword, ...data } = req.body;
 
-    // update normal fields
     Object.assign(user, data);
 
-    // update password فقط إذا موجود
     if (newPassword) {
       user.password = await middleware.hashPassword(newPassword);
     }
