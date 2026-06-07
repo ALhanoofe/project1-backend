@@ -14,10 +14,7 @@ router.get(
   controller.CheckSession
 );
 
-router.put(
-  '/update-user/:id',
-  controller.UpdateUser
-)
+router.put('/update-user/:id', controller.UpdateUser);
 
 router.get(
   '/user/:id',

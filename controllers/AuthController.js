@@ -127,40 +127,7 @@ const Login = async (req, res) => {
     })
   }
 }
-const UpdatePassword = async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body
 
-    let user = await User.findById(req.params.id)
-
-    if (!user) {
-      return res.status(404).send({ msg: "User not found" })
-    }
-
-    const matched = await middleware.comparePassword(
-      oldPassword,
-      user.password
-    )
-
-    if (!matched) {
-      return res.status(401).send({ msg: "Wrong password" })
-    }
-
-    user.password = await middleware.hashPassword(newPassword)
-
-    await user.save()
-
-    return res.status(200).send({
-      status: "Password Updated Successfully"
-    })
-
-  } catch (error) {
-    console.log(error)
-    return res.status(500).send({
-      msg: "Update password failed"
-    })
-  }
-}
 const GetUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -199,25 +166,65 @@ const CheckSession = async (req, res) => {
 
 const UpdateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id)
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).send({ msg: "User not found" });
+    }
+
+    const { newPassword, ...data } = req.body;
+
+    // update normal fields
+    Object.assign(user, data);
+
+    // update password فقط إذا موجود
+    if (newPassword) {
+      user.password = await middleware.hashPassword(newPassword);
+    }
+
+    await user.save();
+
+    return res.status(200).send(user);
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ msg: "Update failed" });
+  }
+};
+const UpdatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body
+
+    let user = await User.findById(req.params.id)
 
     if (!user) {
       return res.status(404).send({ msg: "User not found" })
     }
 
-    Object.keys(req.body).forEach((key) => {
-      if (key !== "oldPassword" && key !== "newPassword") {
-        user[key] = req.body[key]
-      }
-    })
+    const matched = await middleware.comparePassword(
+      oldPassword,
+      user.password
+    )
+
+    if (!matched) {
+      return res.status(401).send({ msg: "Wrong password" })
+    }
+
+    user.password = await middleware.hashPassword(newPassword)
 
     await user.save()
 
-    return res.status(200).send(user)
+    return res.status(200).send({
+      status: "Password Updated Successfully"
+    })
 
   } catch (error) {
     console.log(error)
-    return res.status(500).send({ msg: "Error updating user" })
+    return res.status(500).send({
+      msg: "Update password failed"
+    })
   }
 }
 module.exports = {
