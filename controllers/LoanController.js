@@ -12,15 +12,12 @@ const GetAllLoans = async (req, res) => {
 
 const GetLoanById = async (req, res) => {
   try {
+    const loan = await Loan.findById(req.params.id)
+      .populate("userId")
 
-    const loans = await Loan.findOne({
-      userId: req.params.id
-    }).populate('userId')
-
-    res.status(200).send(loans)
-
+    res.status(200).send(loan)
   } catch (error) {
-    throw error
+    res.status(500).send(error)
   }
 }
 
