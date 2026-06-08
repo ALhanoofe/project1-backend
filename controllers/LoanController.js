@@ -22,17 +22,6 @@ const GetLoanById = async (req, res) => {
   }
 };
 
-// const GetLoanByUserId  = async (req, res) => {
-//   try {
-//     const loans = await Loan.findOne({
-//       userId: req.params.id
-//     }).populate("userId");
-
-//     res.status(200).send(loans)
-//   } catch (error) {
-//     res.status(500).send(error)
-//   }
-// }
 
 
 const CreateLoan = async (req, res) => {
