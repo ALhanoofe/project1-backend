@@ -12,9 +12,21 @@ const GetAllUsers = async (req, res) => {
 
 const GetUserById = async (req, res) => {
   try {
-    const user = await User.findOne({ CPR: req.params.id })
+
+    const user = await User.findOne({
+      CPR: Number(req.params.id)
+    })
+
+    if (!user) {
+      return res.status(404).send({
+        message: "User not found"
+      })
+    }
+
     res.status(200).send(user)
+
   } catch (error) {
+    console.log(error)
     res.status(500).send(error)
   }
 }
@@ -41,7 +53,7 @@ module.exports = {
   GetAllUsers,
   GetUserById,
   UpdateUser
-  
+
 }
 
 

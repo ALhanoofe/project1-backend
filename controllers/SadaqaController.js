@@ -2,7 +2,7 @@ const { Sadaqa } = require('../models')
 
 const GetAllSadaqa = async (req, res) => {
   try {
-    const sadaqas = await Sadaqa.find()
+    const sadaqas = await Sadaqa.find().populate('userId')
     res.status(200).send(sadaqas)
   }
   catch (error) {
