@@ -1,4 +1,4 @@
-const {Voucher} = require('../models')
+const { Voucher } = require('../models')
 
 const GetVouchers = async (req, res) => {
   try {
@@ -13,18 +13,17 @@ const GetVouchers = async (req, res) => {
   }
 }
 
-const GetVoucherById = async (req, res) => {
+const GetVoucherByUserId = async (req, res) => {
   try {
+    const vouchers = await Voucher.find({ userId: req.params.id })
+      .populate("userId");
 
-    const voucher = await Voucher.findById(req.params.id)
-      .populate("userId")
-
-    res.status(200).send(voucher)
-
+    res.status(200).send(vouchers);
   } catch (error) {
-    throw error
+    console.log(error);
+    res.status(500).send(error.message);
   }
-} 
+};
 
 const CreateVoucher = async (req, res) => {
   try {
@@ -39,7 +38,7 @@ const CreateVoucher = async (req, res) => {
 const UpdateVoucher = async (req, res) => {
   try {
     const voucher = await Voucher.findByIdAndUpdate(req.params.id, req
-.body, { new: true })
+      .body, { new: true })
     res.status(200).send(voucher)
   }
   catch (error) {
@@ -60,7 +59,7 @@ const DeleteVoucher = async (req, res) => {
 
 module.exports = {
   GetVouchers,
-  GetVoucherById,
+  GetVoucherByUserId,
   CreateVoucher,
   UpdateVoucher,
   DeleteVoucher

@@ -10,16 +10,30 @@ const GetAllLoans = async (req, res) => {
   }
 }
 
-const GetLoanById = async (req, res) => {
+const GetLoanByUserId = async (req, res) => {
   try {
-    const loan = await Loan.findById(req.params.id)
-      .populate("userId")
+    const loans = await Loan.find({ userId: req.params.id })
+      .populate("userId");
 
-    res.status(200).send(loan)
+    res.status(200).send(loans);
   } catch (error) {
-    res.status(500).send(error)
+    console.log(error);
+    res.status(500).send(error.message);
   }
-}
+};
+
+// const GetLoanById = async (req, res) => {
+//   try {
+//     const loans = await Loan.findOne({
+//       userId: req.params.id
+//     }).populate("userId");
+
+//     res.status(200).send(loans)
+//   } catch (error) {
+//     res.status(500).send(error)
+//   }
+// }
+
 
 const CreateLoan = async (req, res) => {
   try {
@@ -54,7 +68,7 @@ const DeleteLoan = async (req, res) => {
 
 module.exports = {
   GetAllLoans,
-  GetLoanById,
+  GetLoanByUserId,
   CreateLoan,
   UpdateLoan,
   DeleteLoan
