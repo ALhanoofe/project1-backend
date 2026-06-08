@@ -1,10 +1,10 @@
-const { User } = require('../models')
-const middleware = require('../models/middleware')
+const { User } = require('../models');
+const middleware = require('../models/middleware');
 
 const Register = async (req, res) => {
   try {
-
-    const { memberName,
+    let {
+      memberName,
       memberEmail,
       CPR,
       password,
@@ -29,55 +29,85 @@ const Register = async (req, res) => {
       exOfficeNo,
       exHomeNo,
       exFoxNo,
-      status,
-      role,
-      memberStatus
-    } = req.body
+    } = req.body;
 
-    let passwordDigest = await middleware.hashPassword(password)
-
-    let existingUser = await User.exists({ memberEmail })
-
-    if (existingUser) {
-      return res.status(400).send('A user with that email has already been registered!')
-    } else {
-      const user = await User.create({
-        memberName,
-        memberEmail,
-        CPR,
-        bankName,
-        ibanNo,
-        phoneNumber,
-        extraNumber,
-        homeNumber,
-        officeNumber,
-        faxNumber,
-        buildingNo,
-        blockNo,
-        rodeNo,
-        departmentNo,
-        city,
-        mailboxNo,
-        projectType,
-        exName,
-        exCpr,
-        exRelation,
-        exOfficeNo,
-        exPhoneNumber,
-        exHomeNo,
-        exFoxNo,
-        password: passwordDigest,
-        status: "pending",
-        role: "user",
-        memberStatus: "مشترك"
-
-      })
-      res.status(200).send(user)
+    // ❗ Required fields
+    if (!CPR || !password) {
+      return res.status(400).send("CPR and password are required");
     }
+
+    // ❗ Clean CPR
+    CPR = Number(CPR);
+    if (isNaN(CPR)) {
+      return res.status(400).send("Invalid CPR");
+    }
+
+    // ❗ Clean email (IMPORTANT FIX FOR YOUR ERROR)
+    if (!memberEmail || memberEmail.trim() === "") {
+      memberEmail = undefined;
+    } else {
+      memberEmail = memberEmail.trim();
+
+      // check duplicate email only if exists
+      const emailExists = await User.exists({ memberEmail });
+      if (emailExists) {
+        return res.status(400).send("Email already exists");
+      }
+    }
+
+    // ❗ Check duplicate CPR
+    const cprExists = await User.exists({ CPR });
+    if (cprExists) {
+      return res.status(400).send("CPR already exists");
+    }
+
+    // ❗ Hash password
+    const passwordDigest = await middleware.hashPassword(password);
+
+    // ❗ Create user
+    const user = await User.create({
+      memberName,
+      memberEmail,
+      CPR,
+      password: passwordDigest,
+      bankName,
+      ibanNo,
+      phoneNumber,
+      extraNumber,
+      homeNumber,
+      officeNumber,
+      faxNumber,
+      buildingNo,
+      blockNo,
+      rodeNo,
+      departmentNo,
+      city,
+      mailboxNo,
+      projectType,
+      exName,
+      exCpr,
+      exRelation,
+      exPhoneNumber,
+      exOfficeNo,
+      exHomeNo,
+      exFoxNo,
+      status: "pending",
+      role: "user",
+      memberStatus: "مشترك",
+    });
+
+    return res.status(201).send(user);
+
   } catch (error) {
-    throw error
+    console.log("REGISTER ERROR:", error);
+
+    return res.status(500).send({
+      msg: "Server error"
+    });
   }
-}
+};
+
+
 
 const Login = async (req, res) => {
   try {
