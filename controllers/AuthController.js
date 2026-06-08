@@ -31,40 +31,23 @@ const Register = async (req, res) => {
       exFoxNo,
     } = req.body;
 
-    // ❗ Required fields
     if (!CPR || !password) {
       return res.status(400).send("CPR and password are required");
     }
 
-    // ❗ Clean CPR
     CPR = Number(CPR);
     if (isNaN(CPR)) {
       return res.status(400).send("Invalid CPR");
     }
 
-    // ❗ Clean email (IMPORTANT FIX FOR YOUR ERROR)
-    if (!memberEmail || memberEmail.trim() === "") {
-      memberEmail = undefined;
-    } else {
-      memberEmail = memberEmail.trim();
 
-      // check duplicate email only if exists
-      const emailExists = await User.exists({ memberEmail });
-      if (emailExists) {
-        return res.status(400).send("Email already exists");
-      }
-    }
-
-    // ❗ Check duplicate CPR
-    const cprExists = await User.exists({ CPR });
+    const cprExists = await User.findOne({ CPR });
     if (cprExists) {
       return res.status(400).send("CPR already exists");
     }
 
-    // ❗ Hash password
     const passwordDigest = await middleware.hashPassword(password);
 
-    // ❗ Create user
     const user = await User.create({
       memberName,
       memberEmail,
@@ -102,12 +85,10 @@ const Register = async (req, res) => {
     console.log("REGISTER ERROR:", error);
 
     return res.status(500).send({
-      msg: "Server error"
+      msg: "Server error",
     });
   }
 };
-
-
 
 const Login = async (req, res) => {
   try {

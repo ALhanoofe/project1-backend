@@ -4,8 +4,6 @@ const UserSchema = new Schema({
   memberName: { type: String },
   memberEmail: {
     type: String,
-    unique: true,
-    default: null
 
   },
   CPR: { type: Number, unique: true, required: true },

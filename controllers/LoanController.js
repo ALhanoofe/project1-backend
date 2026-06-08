@@ -10,7 +10,7 @@ const GetAllLoans = async (req, res) => {
   }
 }
 
-const GetLoanByUserId = async (req, res) => {
+const GetLoanById = async (req, res) => {
   try {
     const loans = await Loan.find({ userId: req.params.id })
       .populate("userId");
@@ -22,7 +22,7 @@ const GetLoanByUserId = async (req, res) => {
   }
 };
 
-// const GetLoanById = async (req, res) => {
+// const GetLoanByUserId  = async (req, res) => {
 //   try {
 //     const loans = await Loan.findOne({
 //       userId: req.params.id
