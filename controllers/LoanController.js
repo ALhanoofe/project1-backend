@@ -12,7 +12,7 @@ const GetAllLoans = async (req, res) => {
 
 const GetLoanById = async (req, res) => {
   try {
-    const loans = await Loan.find({ userId: req.params.id })
+    const loans = await Loan.findById(req.params.id)
       .populate("userId");
 
     res.status(200).send(loans);
@@ -68,7 +68,7 @@ const DeleteLoan = async (req, res) => {
 
 module.exports = {
   GetAllLoans,
-  GetLoanByUserId,
+  GetLoanById,
   CreateLoan,
   UpdateLoan,
   DeleteLoan
