@@ -13,9 +13,21 @@ const GetVouchers = async (req, res) => {
   }
 }
 
-const GetVoucherByUserId = async (req, res) => {
+// const GetVoucherByUserId = async (req, res) => {
+//   try {
+//     const vouchers = await Voucher.find({ userId: req.params.id })
+//       .populate("userId");
+
+//     res.status(200).send(vouchers);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send(error.message);
+//   }
+// };
+
+const GetVoucherById = async (req, res) => {
   try {
-    const vouchers = await Voucher.find({ userId: req.params.id })
+    const vouchers = await Voucher.findById(req.params.id)
       .populate("userId");
 
     res.status(200).send(vouchers);
@@ -59,7 +71,7 @@ const DeleteVoucher = async (req, res) => {
 
 module.exports = {
   GetVouchers,
-  GetVoucherByUserId,
+  GetVoucherById,
   CreateVoucher,
   UpdateVoucher,
   DeleteVoucher

@@ -21,7 +21,7 @@ const VoucherSchema = new Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ["جديد", "قيد التأكيد", "عملية الدفع مرفوضة", "تمت العملية بنجاح"],
+    enum: ["قيد التأكيد", "عملية الدفع مرفوضة", "تمت العملية بنجاح"],
   },
   voucherReceipt: {
     type: String
