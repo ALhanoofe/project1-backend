@@ -13,6 +13,7 @@ const LoanSchema = new Schema(
       type: String, enum: ["بأنتظار", "مقبول", "مرفوض"],
       default: "بأنتظار"
     },
+    otherReason:{type:String},
     amountMonthlyPayment: { type: Number, required: true },
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     receipt: { type: String },
