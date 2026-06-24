@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, MonthlyPayment } = require('../models');
 const middleware = require('../models/middleware');
 
 const Register = async (req, res) => {
@@ -47,6 +47,7 @@ const Register = async (req, res) => {
     }
 
     const passwordDigest = await middleware.hashPassword(password);
+    const subscriptionDate = new Date();
 
     const user = await User.create({
       memberName,
@@ -77,6 +78,19 @@ const Register = async (req, res) => {
       status: "pending",
       role: "user",
       memberStatus: "مشترك",
+      subscriptionDate,
+    });
+
+    await MonthlyPayment.create({
+      MonthlyPaymentAmount: 5,
+      userId: user._id,
+      subscriptionDate,
+      FirstPaymentDate: subscriptionDate,
+      monthlyPaymentMonth: subscriptionDate.toLocaleString("ar", {
+        month: "long",
+      }),
+      paymentYear: subscriptionDate.getFullYear(),
+      paymentMonth: subscriptionDate.getMonth() + 1,
     });
 
     return res.status(201).send(user);

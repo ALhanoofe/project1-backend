@@ -6,6 +6,10 @@ const VoucherSchema = new Schema({
     ref: "User",
     required: true
   },
+    senderBenefitNo: {
+    type: String,
+    required: true
+  },
   voucherAmount: {
     type: Number,
     required: true

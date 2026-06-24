@@ -62,7 +62,10 @@ const UserSchema = new Schema({
   password: { type: String },
   settlementreason: { type: String },
 
-
+  subscriptionDate: {
+    type: Date,
+    default: Date.now
+  }
 
 
 })
