@@ -4,7 +4,7 @@ const LoanSchema = new Schema(
   {
 
     loanAmountNumber: { type: Number, required: true },
-    loanAmountString: { type: String, required: true },
+    loanAmountString: { type: String},
     remainingAmount: { type: Number },
     loanReason: { type: String, required: true },
     importantLoan: { type: String, required: true },
@@ -24,7 +24,9 @@ const LoanSchema = new Schema(
     //تاريخ الدفع الشهري
     monthlyPaymentDate: { type: Date },
     //مدة سداد القرض
-    loanRepaymentPeriod: { type: Number, required: true }
+    loanRepaymentPeriod: { type: Number, required: true },
+    lastMonthAmount:{type: Number},
+    firstPaymentDate: {type: Date}
 
 
 
