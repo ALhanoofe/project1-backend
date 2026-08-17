@@ -53,13 +53,25 @@ const DeleteLoan = async (req, res) => {
 
 
 
+const GetLoanByUserId = async (req, res) => {
+  try {
+    const loan = await Loan.findOne({
+      userId: req.params.userId,
+      // loanStatus: "مقبول"
+    }).populate("userId");
 
+    res.status(200).send(loan);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error.message);
+  }
+};
 
 module.exports = {
   GetAllLoans,
   GetLoanById,
+  GetLoanByUserId,
   CreateLoan,
   UpdateLoan,
-  DeleteLoan
-
+  DeleteLoan,
 }
