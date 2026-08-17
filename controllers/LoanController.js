@@ -55,12 +55,11 @@ const DeleteLoan = async (req, res) => {
 
 const GetLoanByUserId = async (req, res) => {
   try {
-    const loan = await Loan.findOne({
-      userId: req.params.userId,
-      // loanStatus: "مقبول"
+    const loans = await Loan.find({
+      userId: req.params.userId
     }).populate("userId");
 
-    res.status(200).send(loan);
+    res.status(200).send(loans);
   } catch (error) {
     console.log(error);
     res.status(500).send(error.message);

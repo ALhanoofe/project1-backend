@@ -26,7 +26,10 @@ const LoanSchema = new Schema(
     //مدة سداد القرض
     loanRepaymentPeriod: { type: Number, required: true },
     lastMonthAmount:{type: Number},
-    firstPaymentDate: {type: Date}
+    firstPaymentDate: {type: Date}, 
+    loanProgressStatus: {type: String,
+      enum: ["not_started", "ongoing", "finished"],
+      default: "not_started"},
 
 
 
