@@ -46,7 +46,7 @@ const UserSchema = new Schema({
 
   status: {
     type: String,
-    enum: ["pending", "approved"],
+    enum: ["pending", "approved", "withdrawn"],
     default: "pending",
   },
   role: {
