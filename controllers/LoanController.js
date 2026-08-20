@@ -27,11 +27,33 @@ const GetLoanById = async (req, res) => {
 const CreateLoan = async (req, res) => {
   try {
     const loan = await Loan.create(req.body)
+      loanOwner: res.locals.payload.id
+
     res.status(201).send(loan)
   } catch (error) {
     throw error
   }
 }
+
+
+
+// const CreateLoan = async (req, res) => {
+//   try {
+//     const loan = await Loan.create({
+//       ...req.body,
+//       loanOwner: res.locals.payload.id
+//     })
+
+//     res.status(201).send(loan)
+//   } catch (error) {
+//     console.log("CREATE LOAN ERROR:", error)
+
+//     res.status(500).send({
+//       msg: "Error creating loan",
+//       error: error.message
+//     })
+//   }
+// }
 
 const UpdateLoan = async (req, res) => {
   try {

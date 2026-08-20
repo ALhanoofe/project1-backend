@@ -19,7 +19,6 @@ const LoanSchema = new Schema(
     receipt: { type: String },
     //تاريخ الاستحقاق 
     dueDate: { type: Date, required: true },
-    //تاريخ الطلب
     requestDate: { type: Date, default: Date.now },
     //تاريخ الدفع الشهري
     monthlyPaymentDate: { type: Date },
@@ -30,7 +29,11 @@ const LoanSchema = new Schema(
     loanProgressStatus: {type: String,
       enum: ["not_started", "ongoing", "finished"],
       default: "not_started"},
-
+    loanOwner: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },  
 
 
   },
