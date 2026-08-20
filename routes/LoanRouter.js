@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const controller = require('../controllers/LoanController')
+const middleware = require('../models/middleware');
 
 router.get('/', controller.GetAllLoans)
 router.get('/user/:userId', controller.GetLoanByUserId)
