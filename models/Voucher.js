@@ -33,8 +33,10 @@ const VoucherSchema = new Schema({
   rejectReason: {
     type: String
   }
-  ,loanRelated: {type: Schema.Types.ObjectId,
-    ref: ":Loan"}
+  ,loanRelated: {
+  type: Schema.Types.ObjectId,
+  ref: "Loan"
+}
 
 
 

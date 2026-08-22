@@ -5,7 +5,8 @@ const middleware = require('../models/middleware');
 router.get('/', controller.GetAllLoans)
 router.get('/user/:userId', controller.GetLoanByUserId)
 router.get('/:id', controller.GetLoanById)
-router.post('/', controller.CreateLoan)
+// router.post('/', controller.CreateLoan)
+router.post('/', middleware.stripToken, middleware.verifyToken, controller.CreateLoan)
 router.put('/:id', controller.UpdateLoan)
 router.delete('/:id', controller.DeleteLoan)
 

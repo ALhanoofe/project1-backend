@@ -26,6 +26,7 @@ const LoanSchema = new Schema(
     loanRepaymentPeriod: { type: Number, required: true },
     lastMonthAmount:{type: Number},
     firstPaymentDate: {type: Date}, 
+    loanEndDate: { type: Date },
     loanProgressStatus: {type: String,
       enum: ["not_started", "ongoing", "finished"],
       default: "not_started"},
