@@ -67,19 +67,16 @@ router.get(
 // ======================================================
 // UPDATE USER
 // ======================================================
-
 router.put(
   "/update-user/:id",
+
   upload.fields([
     {
       name: "profilePicture",
       maxCount: 1
-    },
-    {
-      name: "signature",
-      maxCount: 1
     }
   ]),
+
   controller.UpdateUser
 )
 

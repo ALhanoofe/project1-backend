@@ -50,7 +50,9 @@ const Register = async (req, res) => {
       exRelation,
       exOfficeNo,
       exHomeNo,
-      exFoxNo
+      exFoxNo,
+
+      signature
 
     } = req.body
 
@@ -141,15 +143,37 @@ const Register = async (req, res) => {
     // SIGNATURE
     // ==================================================
 
-    let signaturePath = ""
+    let signatureValue = ""
+
+
+    // --------------------------------------------------
+    // Option 1:
+    // Signature sent as Base64 from SignatureCanvas
+    // --------------------------------------------------
 
     if (
+      signature &&
+      typeof signature === "string" &&
+      signature.startsWith("data:image/")
+    ) {
+
+      signatureValue = signature
+
+    }
+
+
+    // --------------------------------------------------
+    // Option 2:
+    // Signature uploaded as a file
+    // --------------------------------------------------
+
+    else if (
       req.files &&
       req.files.signature &&
       req.files.signature[0]
     ) {
 
-      signaturePath =
+      signatureValue =
         `/uploads/signature/${req.files.signature[0].filename}`
 
     }
@@ -171,7 +195,7 @@ const Register = async (req, res) => {
 
       profilePicture,
 
-      signature: signaturePath,
+      signature: signatureValue,
 
       bankName,
 
@@ -230,7 +254,7 @@ const Register = async (req, res) => {
 
     // ==================================================
     // CREATE MONTHLY PAYMENT
-    // ==================================================
+    // ======================================================
 
     await MonthlyPayment.create({
 
@@ -274,7 +298,8 @@ const Register = async (req, res) => {
     )
 
     return res.status(500).send({
-      msg: "Server error"
+      msg: "Server error",
+      error: error.message
     })
 
   }
@@ -485,7 +510,7 @@ const CheckSession = async (req, res) => {
 
 
 // ======================================================
-// DELETE OLD IMAGE FILE
+// DELETE OLD FILE
 // ======================================================
 
 const deleteOldFile = (
@@ -499,16 +524,19 @@ const deleteOldFile = (
     }
 
 
-    // Don't try to delete Base64 data
+    // Don't delete Base64 signature
     if (
       filePath.startsWith(
         "data:"
       )
     ) {
+
       return
+
     }
 
 
+    // Don't delete URL
     if (
       filePath.startsWith(
         "http://"
@@ -517,7 +545,9 @@ const deleteOldFile = (
         "https://"
       )
     ) {
+
       return
+
     }
 
 
@@ -570,6 +600,10 @@ const UpdateUser = async (req, res) => {
     } = req.params
 
 
+    // ==================================================
+    // FIND USER
+    // ==================================================
+
     const user =
       await User.findById(id)
 
@@ -591,19 +625,25 @@ const UpdateUser = async (req, res) => {
 
     const {
       newPassword,
+
+      signature,
+
       ...data
+
     } = req.body
 
 
     // ==================================================
-    // REMOVE FIELDS WE DON'T WANT TO OVERWRITE
+    // REMOVE PROTECTED FIELDS
     // ==================================================
 
     delete data._id
+
     delete data.__v
+
     delete data.password
+
     delete data.profilePicture
-    delete data.signature
 
 
     // ==================================================
@@ -626,7 +666,7 @@ const UpdateUser = async (req, res) => {
       req.files.profilePicture[0]
     ) {
 
-      // Delete previous uploaded image
+      // Delete old profile picture
       deleteOldFile(
         user.profilePicture
       )
@@ -642,13 +682,51 @@ const UpdateUser = async (req, res) => {
     // SIGNATURE
     // ==================================================
 
+    // --------------------------------------------------
+    // USER SIGNATURE FROM SignatureCanvas
+    // --------------------------------------------------
+
     if (
+      signature &&
+      typeof signature === "string" &&
+      signature.startsWith("data:image/")
+    ) {
+
+      console.log(
+        "SIGNATURE RECEIVED FROM USER"
+      )
+
+
+      // If old signature is a file,
+      // delete the old file first
+      deleteOldFile(
+        user.signature
+      )
+
+
+      // Save Base64 signature
+      user.signature =
+        signature
+
+    }
+
+
+    // --------------------------------------------------
+    // SIGNATURE FILE
+    // --------------------------------------------------
+
+    else if (
       req.files &&
       req.files.signature &&
       req.files.signature[0]
     ) {
 
-      // Delete previous uploaded signature
+      console.log(
+        "SIGNATURE FILE RECEIVED"
+      )
+
+
+      // Delete old signature file
       deleteOldFile(
         user.signature
       )
@@ -666,6 +744,7 @@ const UpdateUser = async (req, res) => {
 
     if (
       newPassword &&
+      typeof newPassword === "string" &&
       newPassword.trim()
     ) {
 
@@ -678,10 +757,26 @@ const UpdateUser = async (req, res) => {
 
 
     // ==================================================
-    // SAVE
+    // SAVE USER
     // ==================================================
 
     await user.save()
+
+
+    // ==================================================
+    // RESPONSE
+    // ==================================================
+
+    console.log(
+      "USER UPDATED SUCCESSFULLY"
+    )
+
+    console.log(
+      "SIGNATURE SAVED:",
+      user.signature
+        ? "YES"
+        : "NO"
+    )
 
 
     return res.status(200).send(user)
@@ -689,13 +784,27 @@ const UpdateUser = async (req, res) => {
   } catch (error) {
 
     console.log(
-      "UPDATE USER ERROR:",
+      "===================================="
+    )
+
+    console.log(
+      "UPDATE USER ERROR:"
+    )
+
+    console.log(
       error
     )
 
+    console.log(
+      "===================================="
+    )
+
+
     return res.status(500).send({
 
-      msg: "Update failed"
+      msg: "Update failed",
+
+      error: error.message
 
     })
 
