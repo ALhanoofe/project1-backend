@@ -1,72 +1,214 @@
-const { Schema } = require('mongoose');
+const { Schema } = require("mongoose")
 
 const UserSchema = new Schema({
-  memberName: { type: String },
-  memberEmail: {
-    type: String,
 
+  // =========================
+  // PERSONAL INFORMATION
+  // =========================
+
+  memberName: {
+    type: String
   },
-  CPR: { type: Number, unique: true, required: true },
-  bankName: { type: String },
-  ibanNo: { type: String },
 
-  phoneNumber: { type: Number },
-  extraNumber: { type: Number },
-  homeNumber: { type: Number },
-  officeNumber: { type: Number },
-  faxNumber: { type: Number },
+  memberEmail: {
+    type: String
+  },
+
+  CPR: {
+    type: Number,
+    unique: true,
+    required: true
+  },
+
+  profilePicture: {
+    type: String,
+    default: ""
+  },
+
+  signature: {
+    type: String,
+    default: ""
+  },
 
 
-  buildingNo: { type: Number },
-  blockNo: { type: Number },
-  rodeNo: { type: Number },
-  departmentNo: { type: String },
-  city: { type: String },
-  mailboxNo: { type: Number },
+  // =========================
+  // BANK
+  // =========================
+
+  bankName: {
+    type: String
+  },
+
+  ibanNo: {
+    type: String
+  },
+
+
+  // =========================
+  // PHONE
+  // =========================
+
+  phoneNumber: {
+    type: Number
+  },
+
+  extraNumber: {
+    type: Number
+  },
+
+  homeNumber: {
+    type: Number
+  },
+
+  officeNumber: {
+    type: Number
+  },
+
+  faxNumber: {
+    type: Number
+  },
+
+
+  // =========================
+  // ADDRESS
+  // =========================
+
+  buildingNo: {
+    type: Number
+  },
+
+  blockNo: {
+    type: Number
+  },
+
+  rodeNo: {
+    type: Number
+  },
+
+  departmentNo: {
+    type: String
+  },
+
+  city: {
+    type: String
+  },
+
+  mailboxNo: {
+    type: Number
+  },
+
+
+  // =========================
+  // BALANCE
+  // =========================
 
   userbalance: {
     type: String,
-    enum: ["option1", "option2", "option3"],
+
+    enum: [
+      "option1",
+      "option2",
+      "option3"
+    ],
+
     default: "option1"
   },
 
 
+  projectType: {
+    type: String
+  },
 
 
-  // هل نحط امثل و لا 
-  projectType: { type: String },
+  // =========================
+  // EMERGENCY CONTACT
+  // =========================
 
-  exName: { type: String },
-  exCpr: { type: Number },
-  exRelation: { type: String },
-  exPhoneNumber: { type: Number },
-  exOfficeNo: { type: Number },
-  exHomeNo: { type: Number },
-  exFoxNo: { type: Number },
+  exName: {
+    type: String
+  },
+
+  exCpr: {
+    type: Number
+  },
+
+  exRelation: {
+    type: String
+  },
+
+  exPhoneNumber: {
+    type: Number
+  },
+
+  exOfficeNo: {
+    type: Number
+  },
+
+  exHomeNo: {
+    type: Number
+  },
+
+  exFoxNo: {
+    type: Number
+  },
+
+
+  // =========================
+  // USER STATUS
+  // =========================
 
   status: {
     type: String,
-    enum: ["pending", "approved", "withdrawn"],
-    default: "pending",
+
+    enum: [
+      "pending",
+      "approved",
+      "withdrawn"
+    ],
+
+    default: "pending"
   },
+
+
   role: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+
+    enum: [
+      "user",
+      "admin"
+    ],
+
+    default: "user"
   },
+
+
   memberStatus: {
     type: String,
-    enum: ["مشترك", "منسحبة"],
-    default: "مشترك",
+
+    enum: [
+      "مشترك",
+      "منسحبة"
+    ],
+
+    default: "مشترك"
   },
-  password: { type: String },
-  settlementreason: { type: String },
+
+
+  password: {
+    type: String
+  },
+
+  settlementreason: {
+    type: String
+  },
+
 
   subscriptionDate: {
     type: Date,
+
     default: Date.now
   }
 
-
 })
+
 module.exports = UserSchema
