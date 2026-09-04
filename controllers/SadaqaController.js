@@ -21,12 +21,66 @@ const GetSadaqaById = async (req, res) => {
 
 const CreateSadaqa = async (req, res) => {
   try {
-    const sadaqa = await Sadaqa.create(req.body)
-    res.status(201).send(sadaqa)
+    // If this is a sadaqa expense
+    if (req.body.type === "paid") {
+
+      // Get all sadaqa records
+      const allSadaqa = await Sadaqa.find();
+
+      // Calculate total received donations
+      const totalReceived = allSadaqa.reduce((sum, item) => {
+        if (item.type === "paid") {
+          return sum;
+        }
+
+        return sum + Number(item.SubAmount || 0);
+      }, 0);
+
+      // Calculate total already spent
+      const totalSpent = allSadaqa.reduce((sum, item) => {
+        if (item.type === "paid") {
+          return sum + Number(item.SubAmount || 0);
+        }
+
+        return sum;
+      }, 0);
+
+      // Available balance
+      const remainingAmount = totalReceived - totalSpent;
+
+      // Amount requested to spend
+      const expenseAmount = Number(req.body.SubAmount || 0);
+
+      // Validate amount
+      if (expenseAmount <= 0) {
+        return res.status(400).send({
+          msg: "مبلغ الصرف يجب أن يكون أكبر من صفر"
+        });
+      }
+
+      // Prevent spending more than available
+      if (expenseAmount > remainingAmount) {
+        return res.status(400).send({
+          msg: `لا يمكن صرف هذا المبلغ. المبلغ المتوفر للصرف هو ${remainingAmount.toFixed(
+            3
+          )} BD`
+        });
+      }
+    }
+
+    // Create the sadaqa only if validation passed
+    const sadaqa = await Sadaqa.create(req.body);
+
+    res.status(201).send(sadaqa);
+
   } catch (error) {
-    throw error
+    console.log(error);
+
+    res.status(500).send({
+      msg: "حدث خطأ أثناء تسجيل الصدقة"
+    });
   }
-}
+};
 
 const UpdateSadaqa = async (req, res) => {
   try {
