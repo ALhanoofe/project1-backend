@@ -187,7 +187,7 @@ const UserSchema = new Schema({
 
     enum: [
       "مشترك",
-      "منسحبة"
+      "منسحب"
     ],
 
     default: "مشترك"
