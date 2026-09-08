@@ -50,6 +50,13 @@ const SadaqaSchema = new Schema({
   reason: {
     type: String,
   },
+
+  // Additional notes for received or paid transactions
+notes: {
+  type: String,
+},
+
+
 });
 
 module.exports = SadaqaSchema;
