@@ -170,6 +170,20 @@ const UserSchema = new Schema({
   },
 
 
+  // =========================
+  // FORM STATUS
+  // =========================
+
+  formCompleted: {
+    type: Boolean,
+    default: false
+  },
+
+
+  // =========================
+  // ROLE
+  // =========================
+
   role: {
     type: String,
 
@@ -181,6 +195,10 @@ const UserSchema = new Schema({
     default: "user"
   },
 
+
+  // =========================
+  // MEMBER STATUS
+  // =========================
 
   memberStatus: {
     type: String,
@@ -194,14 +212,31 @@ const UserSchema = new Schema({
   },
 
 
+  // =========================
+  // PASSWORD
+  // =========================
+
   password: {
     type: String
   },
+
+
+  // =========================
+  // SETTLEMENT
+  // =========================
 
   settlementreason: {
     type: String
   },
 
+
+  // =========================
+  // SUBSCRIPTION
+  // =========================
+
+  subscriptionAmount: {
+    type: Number
+  },
 
   subscriptionDate: {
     type: Date,
