@@ -43,7 +43,15 @@ const UserSchema = new Schema({
     type: String
   },
 
-  paymentMethod: {type:String, enum:["Standing Order", "benefit"]},
+paymentMethod: {
+  type: String,
+  enum: [
+    "Standing Order",
+    "benefit",
+    "تحويل شهري (Standing Order)",
+    "بنفت"
+  ]
+},
   SOpaymentDate: {type:Date},
   SOpaymentAmount:{type:Number},
 
