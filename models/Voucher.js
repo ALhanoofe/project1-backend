@@ -57,6 +57,21 @@ const VoucherSchema = new Schema({
   alnathreuatRelated: {
     type: Schema.Types.ObjectId,
     ref: "Alnathreuat"
+  },
+
+
+  // =========================
+  // STANDING ORDER
+  // =========================
+
+  paymentSource: {
+    type: String,
+    enum: ["Manual", "Standing Order"],
+    default: "Manual"
+  },
+
+  standingOrderPeriod: {
+    type: String
   }
 });
 
