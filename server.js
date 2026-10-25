@@ -30,6 +30,12 @@ const AlnathreuatRouter =
 const db = require("./db")
 
 
+require("./jobs/standingOrderJob");
+
+
+
+
+
 const PORT =
   process.env.PORT || 3000
 
