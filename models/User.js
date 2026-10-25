@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   },
 
   CPR: {
-    type: Number,
+    type: String,
     unique: true,
     required: true
   },
