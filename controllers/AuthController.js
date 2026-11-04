@@ -416,6 +416,10 @@ const UpdateUser = async (req, res) => {
 
       user.profilePicture = `/uploads/profile/${req.files.profilePicture[0].filename}`
     }
+    console.log(
+      "FILES RECEIVED:",
+      req.files ? Object.keys(req.files) : "NO FILES"
+    )
 
     // ==================================================
     // SIGNATURE
