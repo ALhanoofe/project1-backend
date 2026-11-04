@@ -405,26 +405,6 @@ const UpdateUser = async (req, res) => {
     Object.assign(user, data)
 
     // ==================================================
-    // PROFILE PICTURE
-    // ==================================================
-
-    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
-      const key = await uploadToS3(req.files.profilePicture[0], "profile")
-
-      // Keep the old file until the new upload succeeds
-
-      user.profilePicture = `s3:${key}`
-
-      deleteOldFile(user.profilePicture)
-
-      user.profilePicture = `/uploads/profile/${req.files.profilePicture[0].filename}`
-    }
-    console.log(
-      "FILES RECEIVED:",
-      req.files ? Object.keys(req.files) : "NO FILES"
-    )
-
-    // ==================================================
     // SIGNATURE
     // ==================================================
 
