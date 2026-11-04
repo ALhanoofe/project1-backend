@@ -106,7 +106,6 @@ const Register = async (req, res) => {
       profilePicture = `s3:${key}`
 
       console.log("PROFILE S3 KEY:", key)
-      console.log("PROFILE SAVED:", user.profilePicture)
     }
 
     // ==================================================
@@ -404,24 +403,17 @@ const UpdateUser = async (req, res) => {
 
     Object.assign(user, data)
     // ===============================================
-// PROFILE PICTURE - S3
-// ===============================================
+    // PROFILE PICTURE - S3
+    // ===============================================
 
-if (
-  req.files &&
-  req.files.profilePicture &&
-  req.files.profilePicture[0]
-) {
-  const key = await uploadToS3(
-    req.files.profilePicture[0],
-    "profile"
-  )
+    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
+      const key = await uploadToS3(req.files.profilePicture[0], "profile")
 
-  user.profilePicture = `s3:${key}`
+      user.profilePicture = `s3:${key}`
 
-  console.log("PROFILE S3 KEY:", key)
-  console.log("PROFILE SAVED:", user.profilePicture)
-}
+      console.log("PROFILE S3 KEY:", key)
+      console.log("PROFILE SAVED:", user.profilePicture)
+    }
 
     // ==================================================
     // SIGNATURE
@@ -449,10 +441,6 @@ if (
       const key = await uploadToS3(req.files.signature[0], "signature")
 
       user.signature = `s3:${key}`
-
-      deleteOldFile(user.signature)
-
-      user.signature = `/uploads/signature/${req.files.signature[0].filename}`
     }
 
     // ==================================================
