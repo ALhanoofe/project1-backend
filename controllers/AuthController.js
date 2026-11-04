@@ -1,10 +1,42 @@
+
 const { User, MonthlyPayment } = require("../models")
-
 const middleware = require("../models/middleware")
-
 const fs = require("fs")
 const path = require("path")
 const uploadToS3 = require("../config/uploadToS3")
+
+const { GetObjectCommand } = require("@aws-sdk/client-s3")
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner")
+const s3 = require("../config/s3")
+
+// ======================================================
+// GET USER WITH PROFILE URL
+// ======================================================
+
+const getUserWithProfileUrl = async (user) => {
+  const userData = user.toObject
+    ? user.toObject()
+    : { ...user }
+
+  const image = userData.profilePicture
+
+  if (image && image.startsWith("s3:")) {
+    const key = image.replace("s3:", "")
+
+    userData.profilePictureUrl = await getSignedUrl(
+      s3,
+      new GetObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: key,
+      }),
+      { expiresIn: 3600 }
+    )
+  } else {
+    userData.profilePictureUrl = image || ""
+  }
+
+  return userData
+}
 
 // ======================================================
 // REGISTER
@@ -32,19 +64,12 @@ const Register = async (req, res) => {
       mailboxNo,
       userbalance,
       projectType,
-      // exName,
-      // exPhoneNumber,
-      // exCpr,
-      // exRelation,
-      // exOfficeNo,
-      // exHomeNo,
-      // exFoxNo,
       signature,
+      projectPersonName,
+      projectPersonCpr,
+      projectPersonRelation,
+      projectPersonPhone,
     } = req.body
-
-    // ==================================================
-    // REQUIRED DATA
-    // ==================================================
 
     if (
       CPR === undefined ||
@@ -58,10 +83,6 @@ const Register = async (req, res) => {
       })
     }
 
-    // ==================================================
-    // CPR — PRESERVE LEADING ZEROS
-    // ==================================================
-
     CPR = String(CPR).trim()
 
     if (!/^\d+$/.test(CPR)) {
@@ -69,10 +90,6 @@ const Register = async (req, res) => {
         msg: "Invalid CPR",
       })
     }
-
-    // ==================================================
-    // CHECK CPR
-    // ==================================================
 
     const cprExists = await User.findOne({ CPR })
 
@@ -82,57 +99,35 @@ const Register = async (req, res) => {
       })
     }
 
-    // ==================================================
-    // PASSWORD
-    // ==================================================
-
     const passwordDigest = await middleware.hashPassword(password)
-
-    // ==================================================
-    // DATE
-    // ==================================================
-
     const subscriptionDate = new Date()
 
-    // ==================================================
     // PROFILE PICTURE
-    // ==================================================
 
     let profilePicture = ""
 
-    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
+    if (req.files?.profilePicture?.[0]) {
       const key = await uploadToS3(req.files.profilePicture[0], "profile")
-
       profilePicture = `s3:${key}`
-
       console.log("PROFILE S3 KEY:", key)
     }
 
-    // ==================================================
     // SIGNATURE
-    // ==================================================
 
     let signatureValue = ""
 
-    // Option 1: Signature sent as Base64
     if (
       signature &&
       typeof signature === "string" &&
       signature.startsWith("data:image/")
     ) {
       signatureValue = signature
-    }
-
-    // Option 2: Signature uploaded as a file
-    else if (req.files && req.files.signature && req.files.signature[0]) {
+    } else if (req.files?.signature?.[0]) {
       const key = await uploadToS3(req.files.signature[0], "signature")
-
       signatureValue = `s3:${key}`
     }
 
-    // ==================================================
     // CREATE USER
-    // ==================================================
 
     const user = await User.create({
       memberName,
@@ -156,13 +151,6 @@ const Register = async (req, res) => {
       mailboxNo,
       userbalance,
       projectType,
-      // exName,
-      // exCpr,
-      // exRelation,
-      // exPhoneNumber,
-      // exOfficeNo,
-      // exHomeNo,
-      // exFoxNo,
       status: "pending",
       role: "user",
       memberStatus: "مشترك",
@@ -173,9 +161,7 @@ const Register = async (req, res) => {
       projectPersonPhone,
     })
 
-    // ==================================================
     // CREATE MONTHLY PAYMENT
-    // ==================================================
 
     await MonthlyPayment.create({
       MonthlyPaymentAmount: 5,
@@ -189,11 +175,9 @@ const Register = async (req, res) => {
       paymentMonth: subscriptionDate.getMonth() + 1,
     })
 
-    // ==================================================
-    // RESPONSE
-    // ==================================================
-
-    return res.status(201).send(user)
+    return res.status(201).send(
+      await getUserWithProfileUrl(user)
+    )
   } catch (error) {
     console.log("REGISTER ERROR:", error)
 
@@ -212,7 +196,6 @@ const Login = async (req, res) => {
   try {
     let { CPR, password } = req.body
 
-    // Preserve leading zeros when searching for a user
     CPR = String(CPR ?? "").trim()
 
     if (!CPR || !/^\d+$/.test(CPR) || !password) {
@@ -231,7 +214,10 @@ const Login = async (req, res) => {
       })
     }
 
-    const matched = await middleware.comparePassword(password, user.password)
+    const matched = await middleware.comparePassword(
+      password,
+      user.password
+    )
 
     if (!matched) {
       return res.status(401).send({
@@ -239,10 +225,6 @@ const Login = async (req, res) => {
         msg: "Wrong password",
       })
     }
-
-    // ==================================================
-    // TOKEN
-    // ==================================================
 
     const payload = {
       id: user._id,
@@ -256,7 +238,7 @@ const Login = async (req, res) => {
     const token = middleware.createToken(payload)
 
     return res.status(200).send({
-      user,
+      user: await getUserWithProfileUrl(user),
       token,
     })
   } catch (error) {
@@ -283,7 +265,9 @@ const GetUserById = async (req, res) => {
       })
     }
 
-    return res.status(200).send(user)
+    return res.status(200).send(
+      await getUserWithProfileUrl(user)
+    )
   } catch (error) {
     console.log("GET USER ERROR:", error)
 
@@ -307,7 +291,9 @@ const CheckSession = async (req, res) => {
       })
     }
 
-    return res.status(200).send(user)
+    return res.status(200).send(
+      await getUserWithProfileUrl(user)
+    )
   } catch (error) {
     console.log("CHECK SESSION ERROR:", error)
 
@@ -323,17 +309,14 @@ const CheckSession = async (req, res) => {
 
 const deleteOldFile = (filePath) => {
   try {
-    if (!filePath) {
-      return
-    }
+    if (!filePath) return
 
-    // Do not delete Base64 signatures
-    if (filePath.startsWith("data:")) {
-      return
-    }
-
-    // Do not delete external URLs
-    if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+    if (
+      filePath.startsWith("data:") ||
+      filePath.startsWith("s3:") ||
+      filePath.startsWith("http://") ||
+      filePath.startsWith("https://")
+    ) {
       return
     }
 
@@ -359,10 +342,6 @@ const UpdateUser = async (req, res) => {
   try {
     const { id } = req.params
 
-    // ==================================================
-    // FIND USER
-    // ==================================================
-
     const user = await User.findById(id)
 
     if (!user) {
@@ -371,22 +350,13 @@ const UpdateUser = async (req, res) => {
       })
     }
 
-    // ==================================================
-    // REQUEST DATA
-    // ==================================================
-
     const { newPassword, signature, ...data } = req.body
-
-    // ==================================================
-    // REMOVE PROTECTED FIELDS
-    // ==================================================
 
     delete data._id
     delete data.__v
     delete data.password
     delete data.profilePicture
 
-    // Preserve leading zeros when CPR is updated
     if (data.CPR !== undefined && data.CPR !== null) {
       data.CPR = String(data.CPR).trim()
 
@@ -397,17 +367,15 @@ const UpdateUser = async (req, res) => {
       }
     }
 
-    // ==================================================
-    // NORMAL FIELDS
-    // ==================================================
-
     Object.assign(user, data)
-    // ===============================================
-    // PROFILE PICTURE - S3
-    // ===============================================
 
-    if (req.files && req.files.profilePicture && req.files.profilePicture[0]) {
-      const key = await uploadToS3(req.files.profilePicture[0], "profile")
+    // PROFILE PICTURE - S3
+
+    if (req.files?.profilePicture?.[0]) {
+      const key = await uploadToS3(
+        req.files.profilePicture[0],
+        "profile"
+      )
 
       user.profilePicture = `s3:${key}`
 
@@ -415,61 +383,45 @@ const UpdateUser = async (req, res) => {
       console.log("PROFILE SAVED:", user.profilePicture)
     }
 
-    // ==================================================
     // SIGNATURE
-    // ==================================================
-
-    // Signature from SignatureCanvas
 
     if (
       signature &&
       typeof signature === "string" &&
       signature.startsWith("data:image/")
     ) {
-      console.log("SIGNATURE RECEIVED FROM USER")
-
       user.signature = signature
-      deleteOldFile(user.signature)
-
-      user.signature = signature
-    }
-
-    // Signature uploaded as a file
-    else if (req.files && req.files.signature && req.files.signature[0]) {
-      console.log("SIGNATURE FILE RECEIVED")
-
-      const key = await uploadToS3(req.files.signature[0], "signature")
+    } else if (req.files?.signature?.[0]) {
+      const key = await uploadToS3(
+        req.files.signature[0],
+        "signature"
+      )
 
       user.signature = `s3:${key}`
     }
 
-    // ==================================================
     // PASSWORD
-    // ==================================================
 
-    if (newPassword && typeof newPassword === "string" && newPassword.trim()) {
-      user.password = await middleware.hashPassword(newPassword.trim())
+    if (
+      newPassword &&
+      typeof newPassword === "string" &&
+      newPassword.trim()
+    ) {
+      user.password = await middleware.hashPassword(
+        newPassword.trim()
+      )
     }
 
-    // ==================================================
-    // SAVE USER
-    // ==================================================
-
     await user.save()
-
-    // ==================================================
-    // RESPONSE
-    // ==================================================
 
     console.log("USER UPDATED SUCCESSFULLY")
     console.log("SIGNATURE SAVED:", user.signature ? "YES" : "NO")
 
-    return res.status(200).send(user)
+    return res.status(200).send(
+      await getUserWithProfileUrl(user)
+    )
   } catch (error) {
-    console.log("====================================")
-    console.log("UPDATE USER ERROR:")
-    console.log(error)
-    console.log("====================================")
+    console.log("UPDATE USER ERROR:", error)
 
     return res.status(500).send({
       msg: "Update failed",
@@ -494,7 +446,10 @@ const UpdatePassword = async (req, res) => {
       })
     }
 
-    const matched = await middleware.comparePassword(oldPassword, user.password)
+    const matched = await middleware.comparePassword(
+      oldPassword,
+      user.password
+    )
 
     if (!matched) {
       return res.status(401).send({
