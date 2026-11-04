@@ -6,11 +6,6 @@ const fs = require("fs")
 const path = require("path")
 const uploadToS3 = require("../config/uploadToS3")
 
-const { User, MonthlyPayment } = require("../models")
-const middleware = require("../models/middleware")
-const fs = require("fs")
-const path = require("path")
-
 // ======================================================
 // REGISTER
 // ======================================================
