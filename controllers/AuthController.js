@@ -3,11 +3,11 @@ const {
   MonthlyPayment
 } = require("../models")
 
-const middleware =
-  require("../models/middleware")
+const middleware = require("../models/middleware")
 
 const fs = require("fs")
 const path = require("path")
+const uploadToS3 = require("../config/uploadToS3")
 
 
 // ======================================================
@@ -19,7 +19,6 @@ const Register = async (req, res) => {
   try {
 
     let {
-
       memberName,
       memberEmail,
       CPR,
@@ -133,8 +132,12 @@ const Register = async (req, res) => {
       req.files.profilePicture[0]
     ) {
 
-      profilePicture =
-        `/uploads/profile/${req.files.profilePicture[0].filename}`
+      const key = await uploadToS3(
+        req.files.profilePicture[0],
+        "profile"
+      )
+
+      profilePicture = `s3:${key}`
 
     }
 
@@ -145,11 +148,7 @@ const Register = async (req, res) => {
 
     let signatureValue = ""
 
-
-    // --------------------------------------------------
-    // Option 1:
-    // Signature sent as Base64 from SignatureCanvas
-    // --------------------------------------------------
+    // Option 1: Base64 from SignatureCanvas
 
     if (
       signature &&
@@ -161,11 +160,7 @@ const Register = async (req, res) => {
 
     }
 
-
-    // --------------------------------------------------
-    // Option 2:
-    // Signature uploaded as a file
-    // --------------------------------------------------
+    // Option 2: Signature uploaded as a file
 
     else if (
       req.files &&
@@ -173,8 +168,12 @@ const Register = async (req, res) => {
       req.files.signature[0]
     ) {
 
-      signatureValue =
-        `/uploads/signature/${req.files.signature[0].filename}`
+      const key = await uploadToS3(
+        req.files.signature[0],
+        "signature"
+      )
+
+      signatureValue = `s3:${key}`
 
     }
 
@@ -186,9 +185,7 @@ const Register = async (req, res) => {
     const user = await User.create({
 
       memberName,
-
       memberEmail,
-
       CPR,
 
       password: passwordDigest,
@@ -198,53 +195,34 @@ const Register = async (req, res) => {
       signature: signatureValue,
 
       bankName,
-
       ibanNo,
 
       phoneNumber,
-
       extraNumber,
-
       homeNumber,
-
       officeNumber,
-
       faxNumber,
 
       buildingNo,
-
       blockNo,
-
       rodeNo,
-
       departmentNo,
-
       city,
-
       mailboxNo,
 
       userbalance,
-
       projectType,
 
       exName,
-
       exCpr,
-
       exRelation,
-
       exPhoneNumber,
-
       exOfficeNo,
-
       exHomeNo,
-
       exFoxNo,
 
       status: "pending",
-
       role: "user",
-
       memberStatus: "مشترك",
 
       subscriptionDate
@@ -254,7 +232,7 @@ const Register = async (req, res) => {
 
     // ==================================================
     // CREATE MONTHLY PAYMENT
-    // ======================================================
+    // ==================================================
 
     await MonthlyPayment.create({
 
@@ -320,28 +298,21 @@ const Login = async (req, res) => {
       password
     } = req.body
 
-
     CPR = Number(CPR)
-
 
     const user =
       await User.findOne({
         CPR
       })
 
-
     if (!user) {
 
       return res.status(404).send({
-
         status: "Error",
-
         msg: "User not found"
-
       })
 
     }
-
 
     const matched =
       await middleware.comparePassword(
@@ -349,15 +320,11 @@ const Login = async (req, res) => {
         user.password
       )
 
-
     if (!matched) {
 
       return res.status(401).send({
-
         status: "Error",
-
         msg: "Wrong password"
-
       })
 
     }
@@ -370,31 +337,22 @@ const Login = async (req, res) => {
     const payload = {
 
       id: user._id,
-
       name: user.memberName,
-
       cpr: user.CPR,
-
       email: user.memberEmail,
-
-      phoneNumber:
-        user.phoneNumber,
-
+      phoneNumber: user.phoneNumber,
       status: user.status
 
     }
-
 
     const token =
       middleware.createToken(
         payload
       )
 
-
     return res.status(200).send({
 
       user,
-
       token
 
     })
@@ -407,11 +365,8 @@ const Login = async (req, res) => {
     )
 
     return res.status(500).send({
-
       status: "Error",
-
       msg: "Server error"
-
     })
 
   }
@@ -432,17 +387,13 @@ const GetUserById = async (req, res) => {
         req.params.id
       )
 
-
     if (!user) {
 
       return res.status(404).send({
-
         msg: "User not found"
-
       })
 
     }
-
 
     return res.status(200).send(user)
 
@@ -454,9 +405,7 @@ const GetUserById = async (req, res) => {
     )
 
     return res.status(500).send({
-
       msg: "Error getting user"
-
     })
 
   }
@@ -477,17 +426,13 @@ const CheckSession = async (req, res) => {
         res.locals.payload.id
       )
 
-
     if (!user) {
 
       return res.status(404).send({
-
         msg: "User not found"
-
       })
 
     }
-
 
     return res.status(200).send(user)
 
@@ -499,9 +444,7 @@ const CheckSession = async (req, res) => {
     )
 
     return res.status(500).send({
-
       msg: "Session error"
-
     })
 
   }
@@ -523,39 +466,31 @@ const deleteOldFile = (
       return
     }
 
-
     // Don't delete Base64 signature
+
     if (
-      filePath.startsWith(
-        "data:"
-      )
+      filePath.startsWith("data:")
     ) {
 
       return
 
     }
-
 
     // Don't delete URL
+
     if (
-      filePath.startsWith(
-        "http://"
-      ) ||
-      filePath.startsWith(
-        "https://"
-      )
+      filePath.startsWith("http://") ||
+      filePath.startsWith("https://")
     ) {
 
       return
 
     }
-
 
     const cleanPath =
       filePath.startsWith("/")
         ? filePath.substring(1)
         : filePath
-
 
     const fullPath =
       path.join(
@@ -563,7 +498,6 @@ const deleteOldFile = (
         "..",
         cleanPath
       )
-
 
     if (
       fs.existsSync(fullPath)
@@ -607,13 +541,10 @@ const UpdateUser = async (req, res) => {
     const user =
       await User.findById(id)
 
-
     if (!user) {
 
       return res.status(404).send({
-
         msg: "User not found"
-
       })
 
     }
@@ -625,11 +556,8 @@ const UpdateUser = async (req, res) => {
 
     const {
       newPassword,
-
       signature,
-
       ...data
-
     } = req.body
 
 
@@ -638,11 +566,8 @@ const UpdateUser = async (req, res) => {
     // ==================================================
 
     delete data._id
-
     delete data.__v
-
     delete data.password
-
     delete data.profilePicture
 
 
@@ -666,14 +591,14 @@ const UpdateUser = async (req, res) => {
       req.files.profilePicture[0]
     ) {
 
-      // Delete old profile picture
-      deleteOldFile(
-        user.profilePicture
+      const key = await uploadToS3(
+        req.files.profilePicture[0],
+        "profile"
       )
 
+      // Keep the old file until the new upload succeeds
 
-      user.profilePicture =
-        `/uploads/profile/${req.files.profilePicture[0].filename}`
+      user.profilePicture = `s3:${key}`
 
     }
 
@@ -682,9 +607,7 @@ const UpdateUser = async (req, res) => {
     // SIGNATURE
     // ==================================================
 
-    // --------------------------------------------------
-    // USER SIGNATURE FROM SignatureCanvas
-    // --------------------------------------------------
+    // Signature from SignatureCanvas
 
     if (
       signature &&
@@ -692,28 +615,11 @@ const UpdateUser = async (req, res) => {
       signature.startsWith("data:image/")
     ) {
 
-      console.log(
-        "SIGNATURE RECEIVED FROM USER"
-      )
-
-
-      // If old signature is a file,
-      // delete the old file first
-      deleteOldFile(
-        user.signature
-      )
-
-
-      // Save Base64 signature
-      user.signature =
-        signature
+      user.signature = signature
 
     }
 
-
-    // --------------------------------------------------
-    // SIGNATURE FILE
-    // --------------------------------------------------
+    // Signature uploaded as a file
 
     else if (
       req.files &&
@@ -721,19 +627,12 @@ const UpdateUser = async (req, res) => {
       req.files.signature[0]
     ) {
 
-      console.log(
-        "SIGNATURE FILE RECEIVED"
+      const key = await uploadToS3(
+        req.files.signature[0],
+        "signature"
       )
 
-
-      // Delete old signature file
-      deleteOldFile(
-        user.signature
-      )
-
-
-      user.signature =
-        `/uploads/signature/${req.files.signature[0].filename}`
+      user.signature = `s3:${key}`
 
     }
 
@@ -778,7 +677,6 @@ const UpdateUser = async (req, res) => {
         : "NO"
     )
 
-
     return res.status(200).send(user)
 
   } catch (error) {
@@ -791,21 +689,15 @@ const UpdateUser = async (req, res) => {
       "UPDATE USER ERROR:"
     )
 
-    console.log(
-      error
-    )
+    console.log(error)
 
     console.log(
       "===================================="
     )
 
-
     return res.status(500).send({
-
       msg: "Update failed",
-
       error: error.message
-
     })
 
   }
@@ -826,23 +718,18 @@ const UpdatePassword = async (req, res) => {
       newPassword
     } = req.body
 
-
     const user =
       await User.findById(
         req.params.id
       )
 
-
     if (!user) {
 
       return res.status(404).send({
-
         msg: "User not found"
-
       })
 
     }
-
 
     const matched =
       await middleware.comparePassword(
@@ -850,32 +737,23 @@ const UpdatePassword = async (req, res) => {
         user.password
       )
 
-
     if (!matched) {
 
       return res.status(401).send({
-
         msg: "Wrong password"
-
       })
 
     }
-
 
     user.password =
       await middleware.hashPassword(
         newPassword
       )
 
-
     await user.save()
 
-
     return res.status(200).send({
-
-      status:
-        "Password Updated Successfully"
-
+      status: "Password Updated Successfully"
     })
 
   } catch (error) {
@@ -886,10 +764,7 @@ const UpdatePassword = async (req, res) => {
     )
 
     return res.status(500).send({
-
-      msg:
-        "Update password failed"
-
+      msg: "Update password failed"
     })
 
   }
@@ -904,15 +779,10 @@ const UpdatePassword = async (req, res) => {
 module.exports = {
 
   Register,
-
   Login,
-
   UpdatePassword,
-
   CheckSession,
-
   UpdateUser,
-
   GetUserById
 
 }
