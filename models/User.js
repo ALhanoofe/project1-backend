@@ -89,7 +89,7 @@ const UserSchema = new Schema({
     type: Number
   },
 
-  departmentNo: {
+  flatNo: {
     type: String
   },
 
@@ -128,33 +128,33 @@ const UserSchema = new Schema({
   // EMERGENCY CONTACT
   // =========================
 
-  exName: {
-    type: String
-  },
+  // exName: {
+  //   type: String
+  // },
 
-  exCpr: {
-    type: Number
-  },
+  // exCpr: {
+  //   type: Number
+  // },
 
-  exRelation: {
-    type: String
-  },
+  // exRelation: {
+  //   type: String
+  // },
 
-  exPhoneNumber: {
-    type: Number
-  },
+  // exPhoneNumber: {
+  //   type: Number
+  // },
 
-  exOfficeNo: {
-    type: Number
-  },
+  // exOfficeNo: {
+  //   type: Number
+  // },
 
-  exHomeNo: {
-    type: Number
-  },
+  // exHomeNo: {
+  //   type: Number
+  // },
 
-  exFoxNo: {
-    type: Number
-  },
+  // exFoxNo: {
+  //   type: Number
+  // },
 
 
   // =========================
@@ -247,6 +247,22 @@ const UserSchema = new Schema({
 
     default: Date.now
   }
+  ,
+    projectPersonName: {
+    type: String
+  },
+
+    projectPersonCpr: {
+    type: String
+  },
+
+    projectPersonRelation: {
+    type: String
+  },
+
+    projectPersonPhone: {
+    type: String
+  },
 
 })
 
