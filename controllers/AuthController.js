@@ -104,6 +104,9 @@ const Register = async (req, res) => {
       const key = await uploadToS3(req.files.profilePicture[0], "profile")
 
       profilePicture = `s3:${key}`
+
+      console.log("PROFILE S3 KEY:", key)
+      console.log("PROFILE SAVED:", user.profilePicture)
     }
 
     // ==================================================
