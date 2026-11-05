@@ -53,23 +53,23 @@ const UserSchema = new Schema({
   // =========================
 
   phoneNumber: {
-    type: Number
+    type: String
   },
 
   extraNumber: {
-    type: Number
+    type: String
   },
 
   homeNumber: {
-    type: Number
+    type: String
   },
 
   officeNumber: {
-    type: Number
+    type: String
   },
 
   faxNumber: {
-    type: Number
+    type: String
   },
 
 
@@ -78,15 +78,15 @@ const UserSchema = new Schema({
   // =========================
 
   buildingNo: {
-    type: Number
+    type: String
   },
 
   blockNo: {
-    type: Number
+    type: String
   },
 
   rodeNo: {
-    type: Number
+    type: String
   },
 
   flatNo: {
@@ -97,16 +97,16 @@ const UserSchema = new Schema({
     type: String
   },
 
-  mailboxNo: {
-    type: Number
-  },
+  // mailboxNo: {
+  //   type: Number
+  // },
 
 
   // =========================
-  // BALANCE
+  // BALANCE (inheritancePolicy)
   // =========================
 
-  userbalance: {
+  inheritancePolicy: {
     type: String,
 
     enum: [
@@ -204,16 +204,16 @@ const UserSchema = new Schema({
   // MEMBER STATUS
   // =========================
 
-  memberStatus: {
-    type: String,
+  // memberStatus: {
+  //   type: String,
 
-    enum: [
-      "مشترك",
-      "منسحب"
-    ],
+  //   enum: [
+  //     "مشترك",
+  //     "منسحب"
+  //   ],
 
-    default: "مشترك"
-  },
+  //   default: "مشترك"
+  // },
 
 
   // =========================
@@ -263,6 +263,9 @@ const UserSchema = new Schema({
     projectPersonPhone: {
     type: String
   },
+  projectHomePhone:{type: String},
+  projectWorkPhone: {type: String},
+  projectWorkFax: {type: String}
 
 })
 

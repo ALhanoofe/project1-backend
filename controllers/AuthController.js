@@ -27,8 +27,8 @@ const Register = async (req, res) => {
       rodeNo,
       flatNo,
       city,
-      mailboxNo,
-      userbalance,
+      // mailboxNo,
+      inheritancePolicy,
       projectType,
       // exName,
       // exPhoneNumber,
@@ -38,6 +38,13 @@ const Register = async (req, res) => {
       // exHomeNo,
       // exFoxNo,
       signature,
+      projectPersonName,
+      projectPersonCpr,
+      projectPersonRelation,
+      projectPersonPhone,
+      projectHomePhone,
+      projectWorkPhone,
+      projectWorkFax
     } = req.body;
 
     // ==================================================
@@ -153,8 +160,8 @@ const Register = async (req, res) => {
       rodeNo,
       flatNo,
       city,
-      mailboxNo,
-      userbalance,
+      // mailboxNo,
+      inheritancePolicy,
       projectType,
       // exName,
       // exCpr,
@@ -165,12 +172,15 @@ const Register = async (req, res) => {
       // exFoxNo,
       status: "pending",
       role: "user",
-      memberStatus: "مشترك",
+      // memberStatus: "مشترك",
       subscriptionDate,
       projectPersonName,
       projectPersonCpr,
       projectPersonRelation,
       projectPersonPhone,
+      projectHomePhone,
+      projectWorkPhone,
+      projectWorkFax
     });
 
     // ==================================================
