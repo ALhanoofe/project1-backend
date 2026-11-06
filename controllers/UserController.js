@@ -1,5 +1,5 @@
 const { User } = require("../models")
-
+const uploadToS3 = require("../config/uploadToS3")
 const { GetObjectCommand } = require("@aws-sdk/client-s3")
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner")
 const s3 = require("../config/s3")
@@ -72,27 +72,71 @@ const GetUserById = async (req, res) => {
 }
 
 // UPDATE USER
+// UPDATE USER
 const UpdateUser = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    })
+    // Find user
+    const user = await User.findById(req.params.id)
 
-    if (!updatedUser) {
+    if (!user) {
       return res.status(404).send({
         message: "User not found",
       })
     }
 
-    const userWithImage = await getUserWithProfileUrl(updatedUser)
+    // Copy normal form data
+    const updateData = { ...req.body }
+
+    // Remove image fields and temporary URLs
+    // We only update images when a new file is uploaded
+    delete updateData.profilePicture
+    delete updateData.signature
+    delete updateData.profilePictureUrl
+    delete updateData.signatureUrl
+
+    // Update normal user information
+    Object.assign(user, updateData)
+
+    // Get uploaded files
+    const profileFile = req.files?.profilePicture?.[0]
+    const signatureFile = req.files?.signature?.[0]
+
+    // Upload new profile picture only if selected
+    if (profileFile) {
+      const profileKey = await uploadToS3(
+        profileFile,
+        "profilePictures"
+      )
+
+      user.profilePicture = `s3:${profileKey}`
+    }
+
+    // Upload new signature only if a new signature was drawn
+    if (signatureFile) {
+      const signatureKey = await uploadToS3(
+        signatureFile,
+        "signatures"
+      )
+
+      user.signature = `s3:${signatureKey}`
+    }
+
+    // Save user
+    await user.save()
+
+    // Return user with signed image URLs
+    const userWithImage = await getUserWithProfileUrl(user)
 
     res.status(200).send(userWithImage)
+
   } catch (error) {
-    console.log(error)
-    res.status(500).send(error.message)
+    console.log("UPDATE USER ERROR:", error)
+
+    res.status(500).send({
+      message: error.message,
+    })
   }
 }
-
 module.exports = {
   GetAllUsers,
   GetUserById,
