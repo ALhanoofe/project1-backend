@@ -1,4 +1,3 @@
-
 const { User, MonthlyPayment } = require("../models")
 const middleware = require("../models/middleware")
 const fs = require("fs")
@@ -14,26 +13,32 @@ const s3 = require("../config/s3")
 // ======================================================
 
 const getUserWithProfileUrl = async (user) => {
-  const userData = user.toObject
-    ? user.toObject()
-    : { ...user }
+  const userData = user.toObject ? user.toObject() : { ...user }
 
-  const image = userData.profilePicture
+  const getImageUrl = async (image) => {
+    if (!image || typeof image !== "string") {
+      return ""
+    }
 
-  if (image && image.startsWith("s3:")) {
-    const key = image.replace("s3:", "")
+    if (image.startsWith("s3:")) {
+      const key = image.replace("s3:", "")
 
-    userData.profilePictureUrl = await getSignedUrl(
-      s3,
-      new GetObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET,
-        Key: key,
-      }),
-      { expiresIn: 3600 }
-    )
-  } else {
-    userData.profilePictureUrl = image || ""
+      return await getSignedUrl(
+        s3,
+        new GetObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: key,
+        }),
+        { expiresIn: 3600 }
+      )
+    }
+
+    return image
   }
+
+  userData.profilePictureUrl = await getImageUrl(userData.profilePicture)
+
+  userData.signatureUrl = await getImageUrl(userData.signature)
 
   return userData
 }
@@ -72,15 +77,12 @@ const Register = async (req, res) => {
 
       projectHomePhone,
       projectWorkPhone,
-      projectWorkFax
-    } = req.body;
+      projectWorkFax,
+    } = req.body
 
     // ==================================================
     // REQUIRED DATA
     // ==================================================
-
-
-
 
     if (
       CPR === undefined ||
@@ -172,9 +174,8 @@ const Register = async (req, res) => {
       projectPersonPhone,
       projectHomePhone,
       projectWorkPhone,
-      projectWorkFax
-    });
-
+      projectWorkFax,
+    })
 
     // CREATE MONTHLY PAYMENT
 
@@ -190,9 +191,7 @@ const Register = async (req, res) => {
       paymentMonth: subscriptionDate.getMonth() + 1,
     })
 
-    return res.status(201).send(
-      await getUserWithProfileUrl(user)
-    )
+    return res.status(201).send(await getUserWithProfileUrl(user))
   } catch (error) {
     console.log("REGISTER ERROR:", error)
 
@@ -229,10 +228,7 @@ const Login = async (req, res) => {
       })
     }
 
-    const matched = await middleware.comparePassword(
-      password,
-      user.password
-    )
+    const matched = await middleware.comparePassword(password, user.password)
 
     if (!matched) {
       return res.status(401).send({
@@ -280,9 +276,7 @@ const GetUserById = async (req, res) => {
       })
     }
 
-    return res.status(200).send(
-      await getUserWithProfileUrl(user)
-    )
+    return res.status(200).send(await getUserWithProfileUrl(user))
   } catch (error) {
     console.log("GET USER ERROR:", error)
 
@@ -306,9 +300,7 @@ const CheckSession = async (req, res) => {
       })
     }
 
-    return res.status(200).send(
-      await getUserWithProfileUrl(user)
-    )
+    return res.status(200).send(await getUserWithProfileUrl(user))
   } catch (error) {
     console.log("CHECK SESSION ERROR:", error)
 
@@ -387,10 +379,7 @@ const UpdateUser = async (req, res) => {
     // PROFILE PICTURE - S3
 
     if (req.files?.profilePicture?.[0]) {
-      const key = await uploadToS3(
-        req.files.profilePicture[0],
-        "profile"
-      )
+      const key = await uploadToS3(req.files.profilePicture[0], "profile")
 
       user.profilePicture = `s3:${key}`
 
@@ -407,24 +396,15 @@ const UpdateUser = async (req, res) => {
     ) {
       user.signature = signature
     } else if (req.files?.signature?.[0]) {
-      const key = await uploadToS3(
-        req.files.signature[0],
-        "signature"
-      )
+      const key = await uploadToS3(req.files.signature[0], "signature")
 
       user.signature = `s3:${key}`
     }
 
     // PASSWORD
 
-    if (
-      newPassword &&
-      typeof newPassword === "string" &&
-      newPassword.trim()
-    ) {
-      user.password = await middleware.hashPassword(
-        newPassword.trim()
-      )
+    if (newPassword && typeof newPassword === "string" && newPassword.trim()) {
+      user.password = await middleware.hashPassword(newPassword.trim())
     }
 
     await user.save()
@@ -432,9 +412,7 @@ const UpdateUser = async (req, res) => {
     console.log("USER UPDATED SUCCESSFULLY")
     console.log("SIGNATURE SAVED:", user.signature ? "YES" : "NO")
 
-    return res.status(200).send(
-      await getUserWithProfileUrl(user)
-    )
+    return res.status(200).send(await getUserWithProfileUrl(user))
   } catch (error) {
     console.log("UPDATE USER ERROR:", error)
 
@@ -461,10 +439,7 @@ const UpdatePassword = async (req, res) => {
       })
     }
 
-    const matched = await middleware.comparePassword(
-      oldPassword,
-      user.password
-    )
+    const matched = await middleware.comparePassword(oldPassword, user.password)
 
     if (!matched) {
       return res.status(401).send({
