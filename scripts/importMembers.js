@@ -114,7 +114,7 @@ function parseDate(value) {
 
   // YYYY-MM-DD
   const isoDate = dateText.match(
-    /^(\d{4})-(\d{1,2})-(\d{1,2})$/
+    /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/
   );
 
   if (isoDate) {
