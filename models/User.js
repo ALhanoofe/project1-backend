@@ -15,7 +15,7 @@ const UserSchema = new Schema({
   },
 
   CPR: {
-    type: Number,
+    type: String,
     unique: true,
     required: true
   },
@@ -53,23 +53,23 @@ const UserSchema = new Schema({
   // =========================
 
   phoneNumber: {
-    type: Number
+    type: String
   },
 
   extraNumber: {
-    type: Number
+    type: String
   },
 
   homeNumber: {
-    type: Number
+    type: String
   },
 
   officeNumber: {
-    type: Number
+    type: String
   },
 
   faxNumber: {
-    type: Number
+    type: String
   },
 
 
@@ -78,18 +78,18 @@ const UserSchema = new Schema({
   // =========================
 
   buildingNo: {
-    type: Number
+    type: String
   },
 
   blockNo: {
-    type: Number
+    type: String
   },
 
   rodeNo: {
-    type: Number
+    type: String
   },
 
-  departmentNo: {
+  flatNo: {
     type: String
   },
 
@@ -97,16 +97,16 @@ const UserSchema = new Schema({
     type: String
   },
 
-  mailboxNo: {
-    type: Number
-  },
+  // mailboxNo: {
+  //   type: Number
+  // },
 
 
   // =========================
-  // BALANCE
+  // BALANCE (inheritancePolicy)
   // =========================
 
-  userbalance: {
+  inheritancePolicy: {
     type: String,
 
     enum: [
@@ -128,33 +128,33 @@ const UserSchema = new Schema({
   // EMERGENCY CONTACT
   // =========================
 
-  exName: {
-    type: String
-  },
+  // exName: {
+  //   type: String
+  // },
 
-  exCpr: {
-    type: Number
-  },
+  // exCpr: {
+  //   type: Number
+  // },
 
-  exRelation: {
-    type: String
-  },
+  // exRelation: {
+  //   type: String
+  // },
 
-  exPhoneNumber: {
-    type: Number
-  },
+  // exPhoneNumber: {
+  //   type: Number
+  // },
 
-  exOfficeNo: {
-    type: Number
-  },
+  // exOfficeNo: {
+  //   type: Number
+  // },
 
-  exHomeNo: {
-    type: Number
-  },
+  // exHomeNo: {
+  //   type: Number
+  // },
 
-  exFoxNo: {
-    type: Number
-  },
+  // exFoxNo: {
+  //   type: Number
+  // },
 
 
   // =========================
@@ -204,16 +204,16 @@ const UserSchema = new Schema({
   // MEMBER STATUS
   // =========================
 
-  memberStatus: {
-    type: String,
+  // memberStatus: {
+  //   type: String,
 
-    enum: [
-      "مشترك",
-      "منسحب"
-    ],
+  //   enum: [
+  //     "مشترك",
+  //     "منسحب"
+  //   ],
 
-    default: "مشترك"
-  },
+  //   default: "مشترك"
+  // },
 
 
   // =========================
@@ -247,6 +247,25 @@ const UserSchema = new Schema({
 
     default: Date.now
   }
+  ,
+    projectPersonName: {
+    type: String
+  },
+
+    projectPersonCpr: {
+    type: String
+  },
+
+    projectPersonRelation: {
+    type: String
+  },
+
+    projectPersonPhone: {
+    type: String
+  },
+  projectHomePhone:{type: String},
+  projectWorkPhone: {type: String},
+  projectWorkFax: {type: String}
 
 })
 
