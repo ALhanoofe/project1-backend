@@ -13,12 +13,12 @@ router.post(
   upload.fields([
     {
       name: "profilePicture",
-      maxCount: 1
+      maxCount: 1,
     },
     {
       name: "signature",
-      maxCount: 1
-    }
+      maxCount: 1,
+    },
   ]),
   controller.Register
 )
@@ -27,10 +27,7 @@ router.post(
 // LOGIN
 // ======================================================
 
-router.post(
-  "/login",
-  controller.Login
-)
+router.post("/login", controller.Login)
 
 // ======================================================
 // UPDATE PASSWORD
@@ -63,8 +60,12 @@ router.put(
   upload.fields([
     {
       name: "profilePicture",
-      maxCount: 1
-    }
+      maxCount: 1,
+    },
+    {
+      name: "signature",
+      maxCount: 1,
+    },
   ]),
   controller.UpdateUser
 )
@@ -73,18 +74,12 @@ router.put(
 // GET USER
 // ======================================================
 
-router.get(
-  "/user/:id",
-  controller.GetUserById
-)
+router.get("/user/:id", controller.GetUserById)
 
 // ======================================================
 // UPDATE PASSWORD
 // ======================================================
 
-router.put(
-  "/update-password/:id",
-  controller.UpdatePassword
-)
+router.put("/update-password/:id", controller.UpdatePassword)
 
 module.exports = router
