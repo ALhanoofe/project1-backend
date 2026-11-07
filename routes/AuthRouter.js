@@ -1,3 +1,4 @@
+
 const router = require("express").Router()
 
 const controller = require("../controllers/AuthController")
@@ -84,6 +85,8 @@ router.get(
 
 router.put(
   "/update-password/:id",
+  middleware.stripToken,
+  middleware.verifyToken,
   controller.UpdatePassword
 )
 

@@ -223,7 +223,10 @@ const UserSchema = new Schema({
   password: {
     type: String
   },
-
+  mustChangePassword: {
+    type: Boolean,
+    default: true
+  },
 
   // =========================
   // SETTLEMENT

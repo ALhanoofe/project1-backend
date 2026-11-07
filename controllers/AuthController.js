@@ -1,3 +1,4 @@
+
 const { User, MonthlyPayment } = require("../models")
 const middleware = require("../models/middleware")
 const fs = require("fs")
@@ -37,7 +38,6 @@ const getUserWithProfileUrl = async (user) => {
   }
 
   userData.profilePictureUrl = await getImageUrl(userData.profilePicture)
-
   userData.signatureUrl = await getImageUrl(userData.signature)
 
   return userData
@@ -74,7 +74,6 @@ const Register = async (req, res) => {
       projectPersonCpr,
       projectPersonRelation,
       projectPersonPhone,
-
       projectHomePhone,
       projectWorkPhone,
       projectWorkFax,
@@ -166,6 +165,7 @@ const Register = async (req, res) => {
       projectType,
       status: "pending",
       role: "user",
+      mustChangePassword: true,
       // memberStatus: "مشترك",
       subscriptionDate,
       projectPersonName,
@@ -237,6 +237,9 @@ const Login = async (req, res) => {
       })
     }
 
+    const mustChangePassword =
+      user.role === "user" ? user.mustChangePassword : false
+
     const payload = {
       id: user._id,
       name: user.memberName,
@@ -244,12 +247,17 @@ const Login = async (req, res) => {
       email: user.memberEmail,
       phoneNumber: user.phoneNumber,
       status: user.status,
+      role: user.role,
+      mustChangePassword,
     }
 
     const token = middleware.createToken(payload)
 
     return res.status(200).send({
-      user: await getUserWithProfileUrl(user),
+      user: {
+        ...(await getUserWithProfileUrl(user)),
+        mustChangePassword,
+      },
       token,
     })
   } catch (error) {
@@ -363,6 +371,7 @@ const UpdateUser = async (req, res) => {
     delete data.__v
     delete data.password
     delete data.profilePicture
+    delete data.mustChangePassword
 
     if (data.CPR !== undefined && data.CPR !== null) {
       data.CPR = String(data.CPR).trim()
@@ -431,6 +440,31 @@ const UpdatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body
 
+    // CHECK AUTHENTICATION
+    if (!res.locals.payload || !res.locals.payload.id) {
+      return res.status(401).send({
+        msg: "Unauthorized",
+      })
+    }
+
+    // CHECK THAT THE USER UPDATES THEIR OWN PASSWORD
+    if (String(req.params.id) !== String(res.locals.payload.id)) {
+      return res.status(403).send({
+        msg: "You can only update your own password",
+      })
+    }
+
+    if (
+      !oldPassword ||
+      !newPassword ||
+      typeof newPassword !== "string" ||
+      !newPassword.trim()
+    ) {
+      return res.status(400).send({
+        msg: "Old password and new password are required",
+      })
+    }
+
     const user = await User.findById(req.params.id)
 
     if (!user) {
@@ -439,7 +473,10 @@ const UpdatePassword = async (req, res) => {
       })
     }
 
-    const matched = await middleware.comparePassword(oldPassword, user.password)
+    const matched = await middleware.comparePassword(
+      oldPassword,
+      user.password
+    )
 
     if (!matched) {
       return res.status(401).send({
@@ -447,12 +484,19 @@ const UpdatePassword = async (req, res) => {
       })
     }
 
-    user.password = await middleware.hashPassword(newPassword)
+    user.password = await middleware.hashPassword(newPassword.trim())
+
+    // ONLY USERS NEED TO CLEAR THIS FLAG
+    if (user.role === "user") {
+      user.mustChangePassword = false
+    }
 
     await user.save()
 
     return res.status(200).send({
       status: "Password Updated Successfully",
+      mustChangePassword:
+        user.role === "user" ? user.mustChangePassword : false,
     })
   } catch (error) {
     console.log("UPDATE PASSWORD ERROR:", error)
